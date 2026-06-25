@@ -1,0 +1,431 @@
+.orderContainer {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 0 120px 0; /* カートトレイと履歴セクションの余白を確保 */
+  position: relative;
+  min-height: 100vh;
+}
+
+/* ヘッダー */
+.header {
+  padding: 24px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.brand {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.tableBadge {
+  background: var(--accent-gold);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  box-shadow: var(--shadow-gold);
+}
+
+/* メインメニュー */
+.menuSection {
+  padding: 20px;
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  border-left: 3px solid var(--accent-gold);
+  padding-left: 10px;
+}
+
+.menuGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.menuItemCard {
+  display: flex;
+  padding: 16px;
+  gap: 16px;
+  align-items: center;
+  transition: var(--transition-fast);
+}
+
+@media (hover: hover) {
+  .menuItemCard:hover {
+    border-color: rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+}
+
+.itemImage {
+  width: 90px;
+  height: 90px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  background: var(--bg-tertiary);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem; /* 絵文字用 */
+}
+
+.itemDetails {
+  flex: 1;
+}
+
+.itemName {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.itemDescription {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.itemPrice {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+
+.quantitySelector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--glass-border);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+}
+
+.qtyBtn {
+  background: transparent;
+  color: var(--text-primary);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-radius: 4px;
+}
+
+@media (hover: hover) {
+  .qtyBtn:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+}
+
+.qtyValue {
+  font-size: 0.95rem;
+  font-weight: 600;
+  min-width: 20px;
+  text-align: center;
+}
+
+.addBtn {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+}
+
+/* 下部固定カートトレイ */
+.cartTray {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px;
+  border-top: 1px solid var(--glass-border);
+  z-index: 200;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.03);
+  animation: slideUp var(--transition-fast) forwards;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.cartInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.cartCount {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.cartTotal {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+
+/* 注文履歴セクション */
+.historySection {
+  padding: 24px 20px;
+  margin-top: 30px;
+  border-top: 1px solid var(--glass-border);
+}
+
+.historyTitleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.historySummary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-secondary);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.historySummaryLabel {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.historySummaryValue {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.historyCard {
+  padding: 20px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-fast);
+}
+
+@media (hover: hover) {
+  .historyCard:hover {
+    box-shadow: var(--shadow-md);
+    border-color: rgba(0, 0, 0, 0.12);
+  }
+}
+
+.historyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding-bottom: 8px;
+}
+
+.historyTime {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.historyItemsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.historyItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+}
+
+.historyItemMain {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.historyItemName {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.historyItemQty {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.historyItemPrice {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.historyCardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  border-top: 1px dotted var(--glass-border);
+  padding-top: 10px;
+}
+
+.historyCardTotal {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* エラー / ローディング画面 */
+.centerScreen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 40px;
+  gap: 20px;
+}
+
+.errorIcon {
+  font-size: 4rem;
+  color: var(--accent-rose);
+}
+
+.errorTitle {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.errorText {
+  color: var(--text-secondary);
+  max-width: 450px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(180, 83, 9, 0.1);
+  border-radius: 50%;
+  border-top-color: var(--accent-gold);
+  animation: spin 1s ease-in-out infinite;
+  box-shadow: var(--shadow-gold);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 注文確認モーダル */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.3);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  width: 90%;
+  max-width: 500px;
+  padding: 30px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.modalTitle {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.cartList {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--glass-border);
+  padding-bottom: 15px;
+}
+
+.cartListItem {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.modalActions {
+  display: flex;
+  gap: 15px;
+}
+
+.modalActions button {
+  flex: 1;
+}
+
+/* トースト通知 */
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  padding: 12px 24px;
+  animation: toastIn 0.3s forwards, toastOut 0.3s 2.7s forwards;
+}
+
+@keyframes toastIn {
+  from { top: -50px; opacity: 0; }
+  to { top: 20px; opacity: 1; }
+}
+
+@keyframes toastOut {
+  from { top: 20px; opacity: 1; }
+  to { top: -50px; opacity: 0; }
+}

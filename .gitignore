@@ -1,0 +1,25 @@
+# Dependency directories
+node_modules/
+**/node_modules/
+
+# Local env files
+.env
+.env.local
+.env.*.local
+**/.env.local
+
+# Next.js build output
+.next/
+**/ .next/
+out/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Tag manager builds / caches
+tag-manager/build/
+tag-manager/dist/
+tag-manager/*.egg-info/
+tag-manager/__pycache__/
+**/__pycache__/

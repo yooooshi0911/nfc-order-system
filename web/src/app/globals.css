@@ -1,0 +1,230 @@
+/* プレミアム・ライトテーマ デザインシステム */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+
+:root {
+  /* カラーシステム (HSL) - 白基調・シンプル＆おしゃれ */
+  --bg-primary: #fbfbfa;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f4f4f5;
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.06);
+  
+  --accent-gold: #b45309;
+  --accent-gold-rgb: 180, 83, 9;
+  --accent-emerald: #0f766e;
+  --accent-emerald-rgb: 15, 118, 110;
+  --accent-rose: #be123c;
+  --accent-rose-rgb: 190, 18, 60;
+  
+  --text-primary: #1c1917;
+  --text-secondary: #57534e;
+  --text-muted: #8c8a82;
+  --text-gold: #b45309;
+  
+  /* レイアウト・エフェクト */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 24px;
+  
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.05);
+  --shadow-gold: 0 4px 20px rgba(180, 83, 9, 0.08);
+  --shadow-emerald: 0 4px 20px rgba(15, 118, 110, 0.08);
+  
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  --font-sans: 'Outfit', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* リセットスタイル */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+
+/* スクロールバーのカスタマイズ */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* 共通ユーティリティ */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #1c1917 0%, var(--accent-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-emerald {
+  background: linear-gradient(135deg, #1c1917 0%, var(--accent-emerald) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ボタン共通 */
+button {
+  font-family: var(--font-sans);
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: var(--transition-fast);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.95rem;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #d97706 0%, var(--accent-gold) 100%);
+  color: #fff;
+  box-shadow: var(--shadow-gold);
+}
+@media (hover: hover) {
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(180, 83, 9, 0.25);
+  }
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-sm);
+}
+@media (hover: hover) {
+  .btn-secondary:hover {
+    background: var(--bg-tertiary);
+    border-color: rgba(0, 0, 0, 0.12);
+  }
+}
+
+.btn-emerald {
+  background: linear-gradient(135deg, #0d9488 0%, var(--accent-emerald) 100%);
+  color: #fff;
+  box-shadow: var(--shadow-emerald);
+}
+@media (hover: hover) {
+  .btn-emerald:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(15, 118, 110, 0.25);
+  }
+}
+
+.btn-rose {
+  background: linear-gradient(135deg, #e11d48 0%, var(--accent-rose) 100%);
+  color: #fff;
+}
+@media (hover: hover) {
+  .btn-rose:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(190, 18, 60, 0.2);
+  }
+}
+
+/* カードグリッド・レイアウト */
+.grid-container {
+  display: grid;
+  gap: 20px;
+}
+
+/* ページ基本レイアウト */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+/* アニメーション */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--transition-normal) forwards;
+}
+
+/* バッジスタイル */
+.badge {
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.badge-available {
+  background: rgba(15, 118, 110, 0.08);
+  color: var(--accent-emerald);
+  border: 1px solid rgba(15, 118, 110, 0.2);
+}
+
+.badge-occupied {
+  background: rgba(180, 83, 9, 0.08);
+  color: var(--accent-gold);
+  border: 1px solid rgba(180, 83, 9, 0.2);
+}
+
+.badge-pending {
+  background: rgba(217, 119, 6, 0.08);
+  color: #d97706;
+  border: 1px solid rgba(217, 119, 6, 0.2);
+}
+
+.badge-served {
+  background: rgba(37, 99, 235, 0.08);
+  color: #2563eb;
+  border: 1px solid rgba(37, 99, 235, 0.2);
+}
+
+/* レスポンシブ調整 */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px 10px;
+  }
+}
