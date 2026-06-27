@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import styles from './menu.module.css';
 
-// メニューのモックデータ
+// メニューのモックデータ（和風居酒屋メニュー）
 const MENU_ITEMS = [
   { menu_id: 'm1', name: '極み生ビール (中)', price: 580, category: 'drink', emoji: '🍺', desc: '氷点下で管理された、のどごし抜群のプレミアムモルツ。' },
   { menu_id: 'm2', name: '角ハイボール', price: 480, category: 'drink', emoji: '🥃', desc: '強炭酸で仕上げた爽快な一杯。レモン添え。' },
@@ -40,12 +40,15 @@ interface MenuContentProps {
   session_type: 'nfc' | 'qr';
 }
 
+type TabType = 'menu' | 'history';
+
 export default function MenuContent({ table_id, session_type }: MenuContentProps) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isOrdering, setIsOrdering] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [orderHistory, setOrderHistory] = useState<Order[]>([]);
+  const [activeTab, setActiveTab] = useState<TabType>('menu');
 
   // 1. 注文履歴のロードとリアルタイム購読
   useEffect(() => {
@@ -53,21 +56,18 @@ export default function MenuContent({ table_id, session_type }: MenuContentProps
 
     fetchOrderHistory();
 
-    // 自分のテーブルの注文状況をリアルタイムで監視
     const channel = supabase
       .channel(`table-orders-${table_id}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'orders', filter: `table_id=eq.${table_id}` },
         (payload) => {
-          console.log('Order update for this table:', payload);
           const updatedOrder = payload.new as Order;
           if (payload.eventType === 'INSERT') {
             setOrderHistory((prev) => [updatedOrder, ...prev]);
             showToast('新しい注文が受領されました。');
           } else if (payload.eventType === 'UPDATE') {
             setOrderHistory((prev) => {
-              // 会計済み(paid)の注文は履歴から非表示にする
               if (updatedOrder.status === 'paid') {
                 return prev.filter((o) => o.id !== updatedOrder.id);
               }
@@ -87,17 +87,18 @@ export default function MenuContent({ table_id, session_type }: MenuContentProps
   }, [table_id]);
 
   const fetchOrderHistory = async () => {
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('table_id', table_id)
-      .in('status', ['pending', 'served'])
-      .order('created_at', { ascending: false });
-
-    if (error) {
+    try {
+      const res = await fetch(`/api/orders?table_id=${table_id}`);
+      if (!res.ok) throw new Error('Failed to fetch order history');
+      const data = await res.json();
+      
+      const orders = data.orders || [];
+      const filtered = orders.filter((o: Order) => 
+        o.status === 'pending' || o.status === 'served'
+      );
+      setOrderHistory(filtered);
+    } catch (error) {
       console.error('Error fetching history:', error);
-    } else {
-      setOrderHistory(data || []);
     }
   };
 
@@ -137,7 +138,10 @@ export default function MenuContent({ table_id, session_type }: MenuContentProps
   const cartTotalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const cartTotalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  // 注文送信処理 (Cookie認証のため、トークンやパラメータは送信せず自動的にクッキーが使われる)
+  const historyTotalAmount = orderHistory.reduce((sum, order) => {
+    return sum + order.items.reduce((itemSum, item) => itemSum + (item.price || 0) * item.quantity, 0);
+  }, 0);
+
   const submitOrder = async () => {
     if (cart.length === 0) return;
     setIsOrdering(true);
@@ -168,9 +172,10 @@ export default function MenuContent({ table_id, session_type }: MenuContentProps
         }
       } else {
         showToast('注文を確定しました！');
-        setCart([]); // カートをクリア
+        setCart([]);
         setShowConfirmModal(false);
-        fetchOrderHistory(); // 履歴を更新
+        setActiveTab('history'); // 注文完了後は履歴タブへ移動
+        fetchOrderHistory();
       }
     } catch (e) {
       console.error(e);
@@ -181,162 +186,207 @@ export default function MenuContent({ table_id, session_type }: MenuContentProps
   };
 
   return (
-    <div className={styles.orderContainer}>
+    <div className={styles.appContainer}>
+      {/* Toast */}
       {toastMessage && (
-        <div className={`${styles.toast} glass-panel btn-primary`}>
+        <div className={styles.toast}>
           {toastMessage}
         </div>
       )}
 
-      <header className={`${styles.header} glass-panel`}>
-        <span className={styles.brand}>
-          <span className="text-gradient-gold">Premium</span> Order
-        </span>
-        <span className={styles.tableBadge}>
-          {table_id}番テーブル ({session_type.toUpperCase()})
-        </span>
+      {/* ヘッダー */}
+      <header className={styles.appHeader}>
+        <div className={styles.brand}>
+          <span className="text-gradient-gold">雅</span> - Miyabi -
+        </div>
+        <div className={styles.tableBadge}>
+          {table_id}番席
+        </div>
       </header>
 
-      {/* メニューセクション */}
-      <main className={styles.menuSection}>
-        <h2 className={styles.sectionTitle}>お料理メニュー</h2>
-        <div className={styles.menuGrid}>
-          {MENU_ITEMS.map((item) => {
-            const qty = getCartQuantity(item.menu_id);
-            return (
-              <div key={item.menu_id} className={`${styles.menuItemCard} glass-panel`}>
-                <div className={styles.itemImage}>
-                  {item.emoji}
-                </div>
-                
-                <div className={styles.itemDetails}>
-                  <div className={styles.itemName}>{item.name}</div>
-                  <div className={styles.itemDescription}>{item.desc}</div>
-                  <div className={styles.itemPrice}>¥{item.price.toLocaleString()}</div>
-                </div>
-
-                {qty > 0 ? (
-                  <div className={styles.quantitySelector}>
-                    <button className={styles.qtyBtn} onClick={() => updateCartQty(item.menu_id, -1)}>-</button>
-                    <span className={styles.qtyValue}>{qty}</span>
-                    <button className={styles.qtyBtn} onClick={() => updateCartQty(item.menu_id, 1)}>+</button>
+      {/* メインコンテンツ領域（スクロール可能） */}
+      <div className={styles.contentArea}>
+        {activeTab === 'menu' && (
+          <div className={`${styles.tabContent} animate-fade-in`}>
+            <h2 className={styles.pageTitle}>お品書き</h2>
+            <div className={styles.menuList}>
+              {MENU_ITEMS.map((item) => {
+                const qty = getCartQuantity(item.menu_id);
+                return (
+                  <div key={item.menu_id} className={styles.menuCard}>
+                    <div className={styles.menuCardMain}>
+                      <div className={styles.menuIcon}>{item.emoji}</div>
+                      <div className={styles.menuInfo}>
+                        <div className={styles.menuName}>{item.name}</div>
+                        <div className={styles.menuDesc}>{item.desc}</div>
+                        <div className={styles.menuPrice}>¥{item.price.toLocaleString()}</div>
+                      </div>
+                    </div>
+                    <div className={styles.menuCardAction}>
+                      {qty > 0 ? (
+                        <div className={styles.qtyControl}>
+                          <div 
+                            className={styles.qtyBtnMobile} 
+                            onClick={() => updateCartQty(item.menu_id, -1)}
+                            role="button"
+                          >-</div>
+                          <span className={styles.qtyLabel}>{qty}</span>
+                          <div 
+                            className={styles.qtyBtnMobile} 
+                            onClick={() => updateCartQty(item.menu_id, 1)}
+                            role="button"
+                          >+</div>
+                        </div>
+                      ) : (
+                        <div 
+                          className={styles.addBtnMobile} 
+                          onClick={() => updateCartQty(item.menu_id, 1)}
+                          role="button"
+                        >
+                          追加
+                        </div>
+                      )}
+                    </div>
                   </div>
-                ) : (
-                  <button className="btn btn-secondary addBtn" onClick={() => updateCartQty(item.menu_id, 1)}>
-                    追加
-                  </button>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </main>
-
-      {/* 注文履歴セクション */}
-      {orderHistory.length > 0 && (
-        <section className={styles.historySection}>
-          <div className={styles.historyTitleRow}>
-            <h2 className={styles.sectionTitle}>ご注文履歴</h2>
-            <div className={styles.historySummary}>
-              <span className={styles.historySummaryLabel}>現在の注文合計:</span>
-              <span className={styles.historySummaryValue}>
-                ¥{orderHistory.reduce((sum, order) => {
-                  return sum + order.items.reduce((itemSum, item) => itemSum + (item.price || 0) * item.quantity, 0);
-                }, 0).toLocaleString()}
-              </span>
+                );
+              })}
             </div>
           </div>
-          <div className={styles.historyList}>
-            {orderHistory.map((order) => {
-              const formattedTime = new Date(order.created_at).toLocaleTimeString('ja-JP', {
-                hour: '2-digit',
-                minute: '2-digit'
-              });
-              
-              const orderTotal = order.items.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0);
-              
-              return (
-                <div key={order.id} className={`${styles.historyCard} glass-panel`}>
-                  <div className={styles.historyHeader}>
-                    <span className={styles.historyTime}>注文時刻: {formattedTime}</span>
-                    <span className={order.status === 'served' ? 'badge badge-available' : 'badge badge-occupied'}>
-                      {order.status === 'served' ? '提供済み' : '調理中'}
-                    </span>
-                  </div>
-                  <div className={styles.historyItemsContainer}>
-                    {order.items.map((item, idx) => (
-                      <div key={idx} className={styles.historyItem}>
-                        <div className={styles.historyItemMain}>
-                          <span className={styles.historyItemName}>{item.name}</span>
-                          <span className={styles.historyItemQty}>x {item.quantity}</span>
-                        </div>
-                        {item.price && (
-                          <span className={styles.historyItemPrice}>¥{(item.price * item.quantity).toLocaleString()}</span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                  <div className={styles.historyCardFooter}>
-                    <span>小計</span>
-                    <span className={styles.historyCardTotal}>¥{orderTotal.toLocaleString()}</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
+        )}
 
-      {/* 下部固定カートトレイ */}
-      {cartTotalItems > 0 && (
-        <div className={`${styles.cartTray} glass-panel`}>
-          <div className={styles.cartInfo}>
-            <span className={styles.cartCount}>{cartTotalItems}点の商品を選択中</span>
-            <span className={styles.cartTotal}>¥{cartTotalAmount.toLocaleString()}</span>
-          </div>
-          <button className="btn btn-primary" onClick={() => setShowConfirmModal(true)}>
-            注文を確認する
-          </button>
-        </div>
-      )}
-
-      {/* 注文確認モーダル */}
-      {showConfirmModal && (
-        <div className={styles.modalOverlay}>
-          <div className={`${styles.modalContent} glass-panel`}>
-            <h3 className={styles.modalTitle}>ご注文内容の確認</h3>
+        {activeTab === 'history' && (
+          <div className={`${styles.tabContent} animate-fade-in`}>
+            <h2 className={styles.pageTitle}>ご注文履歴</h2>
             
-            <div className={styles.cartList}>
+            <div className={styles.historyTotalCard}>
+              <span className={styles.historyTotalLabel}>これまでの合計</span>
+              <span className={styles.historyTotalValue}>¥{historyTotalAmount.toLocaleString()}</span>
+            </div>
+
+            {orderHistory.length === 0 ? (
+              <div className={styles.emptyState}>
+                <div className={styles.emptyIcon}>📝</div>
+                <p>まだご注文はありません。</p>
+              </div>
+            ) : (
+              <div className={styles.historyList}>
+                {orderHistory.map((order) => {
+                  const formattedTime = new Date(order.created_at).toLocaleTimeString('ja-JP', {
+                    hour: '2-digit', minute: '2-digit'
+                  });
+                  const orderTotal = order.items.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0);
+                  
+                  return (
+                    <div key={order.id} className={styles.historyCard}>
+                      <div className={styles.historyCardHeader}>
+                        <span className={styles.historyTime}>{formattedTime}</span>
+                        <span className={order.status === 'served' ? styles.statusServed : styles.statusPending}>
+                          {order.status === 'served' ? '提供済み' : '調理中'}
+                        </span>
+                      </div>
+                      <div className={styles.historyCardBody}>
+                        {order.items.map((item, idx) => (
+                          <div key={idx} className={styles.historyItemRow}>
+                            <div className={styles.historyItemNameQty}>
+                              <span className={styles.historyItemName}>{item.name}</span>
+                              <span className={styles.historyItemQty}>x{item.quantity}</span>
+                            </div>
+                            <span className={styles.historyItemPrice}>
+                              ¥{((item.price || 0) * item.quantity).toLocaleString()}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className={styles.historyCardFooter}>
+                        <span>小計</span>
+                        <span className={styles.historySubtotal}>¥{orderTotal.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ボトムナビゲーション */}
+      <nav className={styles.bottomNav}>
+        <div 
+          className={`${styles.navItem} ${activeTab === 'menu' ? styles.navItemActive : ''}`}
+          onClick={() => setActiveTab('menu')}
+          role="button"
+        >
+          <span className={styles.navIcon}>📖</span>
+          <span className={styles.navLabel}>お品書き</span>
+        </div>
+        
+        <div 
+          className={styles.navCartWrapper}
+          onClick={() => { if (cartTotalItems > 0) setShowConfirmModal(true); }}
+          role="button"
+        >
+          <div className={`${styles.navCartInner} ${cartTotalItems > 0 ? styles.navCartActive : ''}`}>
+            <span className={styles.navCartIcon}>🛒</span>
+            {cartTotalItems > 0 && (
+              <span className={styles.cartBadge}>{cartTotalItems}</span>
+            )}
+          </div>
+        </div>
+
+        <div 
+          className={`${styles.navItem} ${activeTab === 'history' ? styles.navItemActive : ''}`}
+          onClick={() => setActiveTab('history')}
+          role="button"
+        >
+          <span className={styles.navIcon}>🧾</span>
+          <span className={styles.navLabel}>注文履歴</span>
+        </div>
+      </nav>
+
+      {/* 全画面カートモーダル */}
+      {showConfirmModal && (
+        <div className={styles.fullModalOverlay}>
+          <div className={styles.fullModalSheet}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>カートの内容</h3>
+              <div 
+                className={styles.closeBtn} 
+                onClick={() => setShowConfirmModal(false)}
+                role="button"
+              >✕</div>
+            </div>
+            
+            <div className={styles.modalBody}>
               {cart.map((item) => (
-                <div key={item.menu_id} className={styles.cartListItem}>
-                  <span>{item.name} x {item.quantity}</span>
-                  <span>¥{(item.price * item.quantity).toLocaleString()}</span>
+                <div key={item.menu_id} className={styles.cartRow}>
+                  <div className={styles.cartRowInfo}>
+                    <div className={styles.cartRowName}>{item.name}</div>
+                    <div className={styles.cartRowPrice}>¥{item.price.toLocaleString()}</div>
+                  </div>
+                  <div className={styles.cartRowAction}>
+                    <div className={styles.qtyControl}>
+                      <div className={styles.qtyBtnMobile} onClick={() => updateCartQty(item.menu_id, -1)} role="button">-</div>
+                      <span className={styles.qtyLabel}>{item.quantity}</span>
+                      <div className={styles.qtyBtnMobile} onClick={() => updateCartQty(item.menu_id, 1)} role="button">+</div>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-              <span>合計金額:</span>
-              <span className={styles.cartTotal} style={{ fontSize: '1.25rem' }}>
-                ¥{cartTotalAmount.toLocaleString()}
-              </span>
-            </div>
-
-            <div className={styles.modalActions}>
-              <button
-                className="btn btn-secondary"
-                onClick={() => setShowConfirmModal(false)}
-                disabled={isOrdering}
-              >
-                戻る
-              </button>
-              <button
-                className="btn btn-primary"
+            <div className={styles.modalFooter}>
+              <div className={styles.modalTotalRow}>
+                <span className={styles.modalTotalLabel}>合計</span>
+                <span className={styles.modalTotalAmount}>¥{cartTotalAmount.toLocaleString()}</span>
+              </div>
+              <div 
+                className={`${styles.submitBtn} ${isOrdering ? styles.submitting : ''}`}
                 onClick={submitOrder}
-                disabled={isOrdering}
+                role="button"
               >
-                {isOrdering ? '注文を送信中...' : 'この内容で注文する'}
-              </button>
+                {isOrdering ? '送信中...' : '注文を確定する'}
+              </div>
             </div>
           </div>
         </div>

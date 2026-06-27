@@ -35,15 +35,15 @@ export default function CheckoutCompletePage() {
         boxShadow: 'var(--shadow-md)'
       }}>
         <div style={{
-          width: '72px',
-          height: '72px',
+          width: '80px',
+          height: '80px',
           borderRadius: '50%',
-          backgroundColor: 'rgba(15, 118, 110, 0.06)',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
           border: '1.5px solid var(--accent-emerald)',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          fontSize: '2.2rem',
+          fontSize: '2.5rem',
           color: 'var(--accent-emerald)',
           boxShadow: 'var(--shadow-emerald)'
         }}>
@@ -65,8 +65,8 @@ export default function CheckoutCompletePage() {
           margin: '5px 0'
         }}>
           ご来店いただき誠にありがとうございました。<br />
-          お会計処理が正常に終了し、今回の注文セッションは安全にクローズされました。<br />
-          またのご利用を心よりお待ちしております。
+          お会計処理が正常に終了し、今回の注文セッションは安全に終了いたしました。<br />
+          またのご利用を心よりお待ち申し上げております。
         </p>
 
         <div style={{
@@ -80,7 +80,7 @@ export default function CheckoutCompletePage() {
           color: 'var(--text-muted)',
           fontSize: '0.8rem',
         }}>
-          ※このブラウザのセッションキーは破棄されました。
+          ※この端末の注文セッションキーは安全に破棄されました。
         </p>
       </div>
     </div>

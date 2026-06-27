@@ -14,20 +14,22 @@ def get_child_key(master_key: bytes, uid: bytes) -> bytes:
 
 def calculate_sdm_mac(child_key: bytes, uid: bytes, ctr_value: int) -> str:
     """
-    NTAG 424 DNA の SUN 機能における MAC (先頭8バイト) を計算する。
-    検証用に、Python側でも指定のカウンター値で生成できる機能を持たせる。
+    NTAG 424 DNA の SUN 機能における MAC (NXP公式仕様: 1::2スライス奇数バイト) を計算する。
     """
-    sv2 = bytearray(16)
-    sv2[0:6] = [0x3C, 0xC3, 0x00, 0x01, 0x00, 0x80]
-    sv2[6:13] = uid
+    # 1. SV (Session Vector) の構築
+    sv = bytearray(16)
+    sv[0:6] = [0x3C, 0xC3, 0x00, 0x01, 0x00, 0x80]
+    sv[6:13] = uid
+    sv[13:16] = ctr_value.to_bytes(3, byteorder='little')
     
-    # ctr_value (3-byte Little Endian)
-    ctr_bytes = ctr_value.to_bytes(3, byteorder='little')
-    sv2[13:16] = ctr_bytes
+    # 2. セッションキー K_ses_sdm_mac の導出 (child_key をベースとする)
+    k_ses_sdm_mac = aes128_cmac(child_key, bytes(sv))
     
-    cmac_result = aes128_cmac(child_key, sv2)
-    # 先頭8バイトを16進文字列にする
-    mac_bytes = cmac_result[0:8]
+    # 3. 最終的な CMAC 計算 (ファイルデータは空なので、入力は空 b"")
+    final_cmac = aes128_cmac(k_ses_sdm_mac, b"")
+    
+    # 4. NXP独自仕様: 奇数バイトのみを抽出 (1::2)
+    mac_bytes = final_cmac[1::2]
     return binascii.hexlify(mac_bytes).decode('utf-8').upper()
 
 def get_ntag_url(base_url: str, uid_hex: str, ctr_value: int, master_key_hex: str) -> str:

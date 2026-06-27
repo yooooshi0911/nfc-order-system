@@ -1,41 +1,51 @@
-/* プレミアム・ライトテーマ デザインシステム */
+/* プレミアム和モダン ダークテーマ デザインシステム */
 
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
 
 :root {
-  /* カラーシステム (HSL) - 白基調・シンプル＆おしゃれ */
-  --bg-primary: #fbfbfa;
+  /* クリーン＆モダン カラーシステム - 白と青 */
+  --bg-primary: #f8fafc;
   --bg-secondary: #ffffff;
-  --bg-tertiary: #f4f4f5;
-  --glass-bg: rgba(255, 255, 255, 0.8);
-  --glass-border: rgba(0, 0, 0, 0.06);
+  --bg-tertiary: #f1f5f9;
   
-  --accent-gold: #b45309;
-  --accent-gold-rgb: 180, 83, 9;
-  --accent-emerald: #0f766e;
-  --accent-emerald-rgb: 15, 118, 110;
-  --accent-rose: #be123c;
-  --accent-rose-rgb: 190, 18, 60;
+  --glass-bg: rgba(255, 255, 255, 0.9);
+  --glass-border: rgba(0, 0, 0, 0.08);
   
-  --text-primary: #1c1917;
-  --text-secondary: #57534e;
-  --text-muted: #8c8a82;
-  --text-gold: #b45309;
+  /* 藍色・ネイビー (高級和モダンアクセント) ※元のaccent-goldはそのまま変数名として使用 */
+  --accent-gold: #1e3a8a;
+  --accent-gold-rgb: 30, 58, 138;
+  --accent-gold-hover: #172554;
+  --accent-gold-light: #eff6ff;
+  
+  /* エメラルド (成功) */
+  --accent-emerald: #10b981;
+  --accent-emerald-rgb: 16, 185, 129;
+  
+  /* ローズ (警告/キャンセル) */
+  --accent-rose: #ef4444;
+  --accent-rose-rgb: 239, 68, 68;
+  
+  /* テキストカラー */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --text-gold: #1e3a8a;
   
   /* レイアウト・エフェクト */
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 24px;
   
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.03);
-  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.05);
-  --shadow-gold: 0 4px 20px rgba(180, 83, 9, 0.08);
-  --shadow-emerald: 0 4px 20px rgba(15, 118, 110, 0.08);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05), 0 1px 4px rgba(0, 0, 0, 0.02);
+  --shadow-gold: 0 4px 14px 0 rgba(30, 58, 138, 0.3);
+  --shadow-emerald: 0 4px 14px 0 rgba(16, 185, 129, 0.39);
   
-  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-normal: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   
   --font-sans: 'Outfit', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: var(--font-noto-serif-jp), 'Yu Mincho', 'YuMincho', 'Hiragino Mincho ProN', serif;
 }
 
 /* リセットスタイル */
@@ -58,40 +68,33 @@ body {
 
 /* スクロールバーのカスタマイズ */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: var(--bg-primary);
 }
 ::-webkit-scrollbar-thumb {
   background: var(--bg-tertiary);
-  border-radius: 4px;
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  background: var(--accent-gold);
 }
 
 /* 共通ユーティリティ */
 .glass-panel {
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
 }
 
 .text-gradient-gold {
-  background: linear-gradient(135deg, #1c1917 0%, var(--accent-gold) 100%);
+  background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-
-.text-gradient-emerald {
-  background: linear-gradient(135deg, #1c1917 0%, var(--accent-emerald) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-family: var(--font-serif);
 }
 
 /* ボタン共通 */
@@ -101,6 +104,14 @@ button {
   border: none;
   outline: none;
   transition: var(--transition-fast);
+  touch-action: manipulation; /* ダブルタップズーム防止による応答速度向上 */
+  -webkit-tap-highlight-color: transparent; /* タップ時の青い枠線を非表示 */
+}
+
+/* Google推奨: モバイル向け最小タップエリアの確保 */
+.btn, button.qtyBtn, button.addBtn {
+  min-height: 44px;
+  min-width: 44px;
 }
 
 .btn {
@@ -115,14 +126,18 @@ button {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #d97706 0%, var(--accent-gold) 100%);
-  color: #fff;
+  background: linear-gradient(135deg, var(--accent-gold) 0%, #1e40af 100%);
+  color: #fff; /* 青背景には白文字が映える */
+  font-weight: 700;
   box-shadow: var(--shadow-gold);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
+
 @media (hover: hover) {
   .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(180, 83, 9, 0.25);
+    background: linear-gradient(135deg, var(--accent-gold-hover) 0%, var(--accent-gold) 100%);
+    box-shadow: 0 4px 20px rgba(212, 148, 58, 0.3);
   }
 }
 .btn-primary:active {
@@ -138,30 +153,30 @@ button {
 @media (hover: hover) {
   .btn-secondary:hover {
     background: var(--bg-tertiary);
-    border-color: rgba(0, 0, 0, 0.12);
+    border-color: var(--accent-gold);
   }
 }
 
 .btn-emerald {
-  background: linear-gradient(135deg, #0d9488 0%, var(--accent-emerald) 100%);
+  background: linear-gradient(135deg, var(--accent-emerald) 0%, #065f46 100%);
   color: #fff;
   box-shadow: var(--shadow-emerald);
 }
 @media (hover: hover) {
   .btn-emerald:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(15, 118, 110, 0.25);
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
   }
 }
 
 .btn-rose {
-  background: linear-gradient(135deg, #e11d48 0%, var(--accent-rose) 100%);
+  background: linear-gradient(135deg, var(--accent-rose) 0%, #9f1239 100%);
   color: #fff;
 }
 @media (hover: hover) {
   .btn-rose:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(190, 18, 60, 0.2);
+    box-shadow: 0 4px 20px rgba(244, 63, 94, 0.3);
   }
 }
 
@@ -199,27 +214,27 @@ button {
 }
 
 .badge-available {
-  background: rgba(15, 118, 110, 0.08);
+  background: rgba(16, 185, 129, 0.1);
   color: var(--accent-emerald);
-  border: 1px solid rgba(15, 118, 110, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .badge-occupied {
-  background: rgba(180, 83, 9, 0.08);
+  background: rgba(212, 148, 58, 0.1);
   color: var(--accent-gold);
-  border: 1px solid rgba(180, 83, 9, 0.2);
+  border: 1px solid rgba(212, 148, 58, 0.3);
 }
 
 .badge-pending {
-  background: rgba(217, 119, 6, 0.08);
-  color: #d97706;
-  border: 1px solid rgba(217, 119, 6, 0.2);
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .badge-served {
-  background: rgba(37, 99, 235, 0.08);
-  color: #2563eb;
-  border: 1px solid rgba(37, 99, 235, 0.2);
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
 /* レスポンシブ調整 */

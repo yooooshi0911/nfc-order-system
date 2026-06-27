@@ -1,225 +1,252 @@
-.orderContainer {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0 0 120px 0; /* カートトレイと履歴セクションの余白を確保 */
-  position: relative;
-  min-height: 100vh;
+/* App Container & Base Layout */
+.appContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  overflow: hidden; /* 防止全体スクロール */
 }
 
-/* ヘッダー */
-.header {
-  padding: 24px 20px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+/* Toast */
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  padding: 12px 24px;
+  background: var(--accent-emerald);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  font-weight: bold;
+  box-shadow: var(--shadow-md);
+  animation: toastIn 0.3s forwards, toastOut 0.3s 2.7s forwards;
+  pointer-events: none;
+}
+
+@keyframes toastIn { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
+@keyframes toastOut { from { top: 20px; opacity: 1; } to { top: -50px; opacity: 0; } }
+
+/* Header */
+.appHeader {
+  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.95);
   border-bottom: 1px solid var(--glass-border);
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
 }
 
 .brand {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 700;
+  color: var(--text-primary);
 }
 
 .tableBadge {
-  background: var(--accent-gold);
-  color: #fff;
+  background: var(--accent-gold-light);
+  color: var(--accent-gold);
+  border: 1px solid rgba(30, 58, 138, 0.2);
   padding: 6px 14px;
   border-radius: 9999px;
   font-weight: 700;
-  font-size: 0.9rem;
-  box-shadow: var(--shadow-gold);
+  font-size: 0.85rem;
 }
 
-/* メインメニュー */
-.menuSection {
+/* Scrollable Content Area */
+.contentArea {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 130px; /* ボトムナビゲーションの高さ+ゆとり分確保 */
+  -webkit-overflow-scrolling: touch;
+}
+
+.tabContent {
   padding: 20px;
 }
 
-.sectionTitle {
-  font-size: 1.25rem;
-  font-weight: 600;
+.pageTitle {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 700;
   margin-bottom: 20px;
-  border-left: 3px solid var(--accent-gold);
-  padding-left: 10px;
+  border-left: 4px solid var(--accent-gold);
+  padding-left: 12px;
+  color: var(--text-primary);
+  letter-spacing: 0.05em;
 }
 
-.menuGrid {
+/* Menu List */
+.menuList {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-}
-
-.menuItemCard {
-  display: flex;
-  padding: 16px;
   gap: 16px;
-  align-items: center;
-  transition: var(--transition-fast);
 }
 
-@media (hover: hover) {
-  .menuItemCard:hover {
-    border-color: rgba(0, 0, 0, 0.12);
-    transform: translateY(-2px);
-  }
+.menuCard {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
 }
 
-.itemImage {
-  width: 90px;
-  height: 90px;
-  border-radius: var(--radius-sm);
-  object-fit: cover;
-  background: var(--bg-tertiary);
-  flex-shrink: 0;
+.menuCardMain {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.menuIcon {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-gold-light) 0%, var(--bg-tertiary) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem; /* 絵文字用 */
+  font-size: 2rem;
+  border: 1px solid rgba(30, 58, 138, 0.1);
+  flex-shrink: 0;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
 }
 
-.itemDetails {
+.menuInfo {
   flex: 1;
 }
 
-.itemName {
+.menuName {
   font-size: 1.05rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 4px;
 }
 
-.itemDescription {
+.menuDesc {
   font-size: 0.8rem;
   color: var(--text-secondary);
   line-height: 1.4;
   margin-bottom: 8px;
 }
 
-.itemPrice {
+.menuPrice {
   font-size: 1.1rem;
   font-weight: 700;
   color: var(--accent-gold);
 }
 
-.quantitySelector {
+.menuCardAction {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding-top: 12px;
+}
+
+/* Touch-optimized Buttons (no hover, role="button") */
+.qtyControl {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--bg-secondary);
+  background: var(--bg-tertiary);
   border: 1px solid var(--glass-border);
-  padding: 6px 10px;
-  border-radius: var(--radius-sm);
+  padding: 4px;
+  border-radius: 9999px;
 }
 
-.qtyBtn {
-  background: transparent;
-  color: var(--text-primary);
-  width: 24px;
-  height: 24px;
+.qtyBtnMobile, .addBtnMobile {
   display: flex;
   align-items: center;
   justify-content: center;
+  user-select: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.qtyBtnMobile {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.05);
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.qtyBtnMobile:active {
+  background: var(--accent-gold);
+  color: #fff;
+}
+
+.qtyLabel {
   font-size: 1.1rem;
   font-weight: 700;
-  border-radius: 4px;
-}
-
-@media (hover: hover) {
-  .qtyBtn:hover {
-    background: rgba(0, 0, 0, 0.05);
-  }
-}
-
-.qtyValue {
-  font-size: 0.95rem;
-  font-weight: 600;
   min-width: 20px;
   text-align: center;
 }
 
-.addBtn {
-  padding: 8px 16px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  border-radius: var(--radius-sm);
+.addBtnMobile {
+  height: 44px;
+  padding: 0 24px;
+  border-radius: 9999px;
+  background: var(--accent-gold);
+  color: #ffffff;
+  border: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: var(--shadow-gold);
+  transition: transform 0.1s, box-shadow 0.1s;
 }
 
-/* 下部固定カートトレイ */
-.cartTray {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 20px;
-  border-top: 1px solid var(--glass-border);
-  z-index: 200;
+.addBtnMobile:active {
+  background: var(--accent-gold-hover);
+  transform: scale(0.96);
+  box-shadow: 0 2px 5px rgba(30, 58, 138, 0.3);
+}
+
+/* History Tab */
+.historyTotalCard {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.03);
-  animation: slideUp var(--transition-fast) forwards;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.15) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  margin-bottom: 24px;
 }
 
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
+.historyTotalLabel {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent-gold);
 }
 
-.cartInfo {
+.historyTotalValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+
+.emptyState {
   display: flex;
   flex-direction: column;
-}
-
-.cartCount {
-  font-size: 0.85rem;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
   color: var(--text-secondary);
 }
 
-.cartTotal {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: var(--accent-gold);
-}
-
-/* 注文履歴セクション */
-.historySection {
-  padding: 24px 20px;
-  margin-top: 30px;
-  border-top: 1px solid var(--glass-border);
-}
-
-.historyTitleRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.historySummary {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--bg-secondary);
-  padding: 8px 16px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-sm);
-}
-
-.historySummaryLabel {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-.historySummaryValue {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--accent-gold);
+.emptyIcon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  opacity: 0.5;
 }
 
 .historyList {
@@ -229,51 +256,62 @@
 }
 
 .historyCard {
-  padding: 20px;
+  background: var(--bg-secondary);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
-  background: var(--bg-secondary);
+  overflow: hidden;
   box-shadow: var(--shadow-sm);
-  transition: var(--transition-fast);
 }
 
-@media (hover: hover) {
-  .historyCard:hover {
-    box-shadow: var(--shadow-md);
-    border-color: rgba(0, 0, 0, 0.12);
-  }
-}
-
-.historyHeader {
+.historyCardHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.85rem;
-  margin-bottom: 12px;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.03);
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  padding-bottom: 8px;
 }
 
 .historyTime {
-  color: var(--text-secondary);
+  font-size: 0.85rem;
   font-weight: 500;
+  color: var(--text-secondary);
 }
 
-.historyItemsContainer {
+.statusServed {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--accent-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.statusPending {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--accent-gold);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.historyCardBody {
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 12px;
 }
 
-.historyItem {
+.historyItemRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.95rem;
 }
 
-.historyItemMain {
+.historyItemNameQty {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -281,151 +319,276 @@
 
 .historyItemName {
   color: var(--text-primary);
+  font-size: 0.95rem;
   font-weight: 500;
 }
 
 .historyItemQty {
-  color: var(--text-secondary);
-  font-size: 0.85rem;
+  color: var(--accent-gold);
+  font-weight: 700;
+  font-size: 0.95rem;
 }
 
 .historyItemPrice {
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 .historyCardFooter {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  border-top: 1px dotted var(--glass-border);
-  padding-top: 10px;
+  padding: 12px 16px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.02);
 }
 
-.historyCardTotal {
-  font-size: 1.05rem;
+.historySubtotal {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+/* Bottom Navigation */
+.bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background: rgba(255, 255, 255, 0.95);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 1000;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+}
+
+.navItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 80px;
+  height: 100%;
+  color: var(--text-secondary);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.navItemActive {
+  color: var(--accent-gold);
+}
+
+.navIcon {
+  font-size: 1.4rem;
+}
+
+.navLabel {
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.navCartWrapper {
+  position: relative;
+  width: 70px;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.navCartInner {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-gold) 0%, #0f172a 100%);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  transform: translateY(-12px);
+  box-shadow: var(--shadow-gold);
+  transition: all 0.2s;
+  color: #ffffff;
+}
+
+.navCartActive {
+  transform: translateY(-10px) scale(0.95);
+  box-shadow: 0 2px 10px rgba(30, 58, 138, 0.4);
+}
+
+.navCartIcon {
+  font-size: 1.6rem;
+}
+
+.cartBadge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--accent-rose);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid #fff;
+}
+
+/* Full Screen Cart Modal */
+.fullModalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.fullModalSheet {
+  background: var(--bg-secondary);
+  border-radius: 24px 24px 0 0;
+  border-top: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  max-height: 85vh;
+  animation: slideUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
+}
+
+@keyframes slideUpModal {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.modalTitle {
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--text-primary);
 }
 
-/* エラー / ローディング画面 */
-.centerScreen {
-  min-height: 100vh;
+.closeBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.modalBody {
+  padding: 16px 24px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cartRow {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  gap: 12px;
+}
+
+.cartRow:last-child {
+  border-bottom: none;
+}
+
+.cartRowInfo {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  text-align: center;
-  padding: 40px;
-  gap: 20px;
 }
 
-.errorIcon {
-  font-size: 4rem;
-  color: var(--accent-rose);
-}
-
-.errorTitle {
-  font-size: 1.8rem;
+.cartRowName {
+  font-size: 1.05rem;
   font-weight: 700;
 }
 
-.errorText {
+.cartRowPrice {
+  color: var(--accent-gold);
+  font-weight: 700;
+}
+
+.cartRowAction {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modalFooter {
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.95);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+}
+
+.modalTotalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modalTotalLabel {
+  font-size: 1.1rem;
+  font-weight: 600;
   color: var(--text-secondary);
-  max-width: 450px;
-  font-size: 0.95rem;
-  line-height: 1.6;
 }
 
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 3px solid rgba(180, 83, 9, 0.1);
-  border-radius: 50%;
-  border-top-color: var(--accent-gold);
-  animation: spin 1s ease-in-out infinite;
-  box-shadow: var(--shadow-gold);
+.modalTotalAmount {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--accent-gold);
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* 注文確認モーダル */
-.modalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(15, 23, 42, 0.3);
-  backdrop-filter: blur(8px);
+.submitBtn {
+  width: 100%;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--accent-gold) 0%, #1e40af 100%);
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 700;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
-.modalContent {
-  width: 90%;
-  max-width: 500px;
-  padding: 30px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+.submitBtn:active {
+  transform: scale(0.98);
 }
 
-.modalTitle {
-  font-size: 1.4rem;
-  font-weight: 600;
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-.cartList {
-  max-height: 200px;
-  overflow-y: auto;
-  margin-bottom: 20px;
-  border-bottom: 1px solid var(--glass-border);
-  padding-bottom: 15px;
-}
-
-.cartListItem {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-  font-size: 0.95rem;
-}
-
-.modalActions {
-  display: flex;
-  gap: 15px;
-}
-
-.modalActions button {
-  flex: 1;
-}
-
-/* トースト通知 */
-.toast {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  padding: 12px 24px;
-  animation: toastIn 0.3s forwards, toastOut 0.3s 2.7s forwards;
-}
-
-@keyframes toastIn {
-  from { top: -50px; opacity: 0; }
-  to { top: 20px; opacity: 1; }
-}
-
-@keyframes toastOut {
-  from { top: 20px; opacity: 1; }
-  to { top: -50px; opacity: 0; }
+.submitting {
+  opacity: 0.7;
+  pointer-events: none;
 }

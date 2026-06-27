@@ -39,17 +39,17 @@ export default async function AuthErrorPage({
         boxShadow: 'var(--shadow-md)'
       }}>
         <div style={{
-          width: '72px',
-          height: '72px',
+          width: '80px',
+          height: '80px',
           borderRadius: '50%',
-          backgroundColor: 'rgba(190, 18, 60, 0.06)',
+          backgroundColor: 'rgba(244, 63, 94, 0.1)',
           border: '1.5px solid var(--accent-rose)',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          fontSize: '2.2rem',
+          fontSize: '2.5rem',
           color: 'var(--accent-rose)',
-          boxShadow: 'var(--shadow-emerald)'
+          boxShadow: '0 4px 20px rgba(244, 63, 94, 0.2)'
         }}>
           ⚠️
         </div>
@@ -99,7 +99,7 @@ export default async function AuthErrorPage({
         <Link 
           href="/"
           className="btn btn-secondary"
-          style={{ width: '100%', textDecoration: 'none', display: 'flex', justifyContent: 'center' }}
+          style={{ width: '100%', textDecoration: 'none', display: 'flex', justifyContent: 'center', minHeight: '44px' }}
         >
           トップに戻る
         </Link>

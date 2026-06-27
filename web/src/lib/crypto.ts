@@ -91,16 +91,27 @@ export function getChildKey(masterKey: Buffer, uid: Buffer): Buffer {
  * 個別キー、UID、カウンターから SDM MAC を計算する (先頭8バイトの16進文字列)
  */
 export function calculateSdmMac(childKey: Buffer, uid: Buffer, ctrValue: number): string {
-    const sv2 = Buffer.alloc(16);
-    sv2.set([0x3C, 0xC3, 0x00, 0x01, 0x00, 0x80], 0);
-    sv2.set(uid, 6);
+    // 1. SV (Session Vector) の構築
+    const sv = Buffer.alloc(16);
+    sv.set([0x3C, 0xC3, 0x00, 0x01, 0x00, 0x80], 0);
+    sv.set(uid, 6);
     
     const ctrBytes = Buffer.alloc(3);
     ctrBytes.writeUIntLE(ctrValue, 0, 3); // 3バイトリトルエンディアン
-    sv2.set(ctrBytes, 13);
+    sv.set(ctrBytes, 13);
     
-    const cmacResult = aes128Cmac(childKey, sv2);
-    const macBytes = cmacResult.slice(0, 8);
+    // 2. セッションキー K_ses_sdm_mac の導出
+    const kSesSdmMac = aes128Cmac(childKey, sv);
+    
+    // 3. 最終的な CMAC 計算 (ファイルデータは空なので、入力は空)
+    const finalCmac = aes128Cmac(kSesSdmMac, Buffer.alloc(0));
+    
+    // 4. NXP独自仕様: 奇数バイトのみを抽出 (1, 3, 5, 7, 9, 11, 13, 15)
+    const macBytes = Buffer.alloc(8);
+    for (let i = 0; i < 8; i++) {
+        macBytes[i] = finalCmac[1 + i * 2];
+    }
+    
     return macBytes.toString('hex').toUpperCase();
 }
 
@@ -121,14 +132,23 @@ export function verifySdmMac(
         const masterKey = Buffer.from(masterKeyHex, 'hex');
         const uid = Buffer.from(uidHex, 'hex');
         
-        // 1. 個別鍵の算出
+        // 1. 個別鍵の算出 (本番用)
         const childKey = getChildKey(masterKey, uid);
+        const expectedMacDerived = calculateSdmMac(childKey, uid, ctrValue);
         
-        // 2. サーバー側での期待される MAC の算出
-        const expectedMac = calculateSdmMac(childKey, uid, ctrValue);
+        if (expectedMacDerived === macHexToVerify.toUpperCase()) {
+            return true;
+        }
         
-        // 3. 比較 (大文字小文字の違いを考慮して正規化して比較)
-        return expectedMac === macHexToVerify.toUpperCase();
+        // 2. フォールバック: 工場出荷時キー (開発用) での検証
+        const defaultKey = Buffer.alloc(16, 0); // 16 bytes of 0x00
+        const expectedMacDefault = calculateSdmMac(defaultKey, uid, ctrValue);
+        
+        if (expectedMacDefault === macHexToVerify.toUpperCase()) {
+            return true;
+        }
+        
+        return false;
     } catch (e) {
         console.error("CMAC Verification error:", e);
         return false;

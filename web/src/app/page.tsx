@@ -77,7 +77,7 @@ function HomeContent() {
   if (hasParams) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: 'var(--bg-primary)' }}>
-        <div style={{ width: '40px', height: '40px', border: '3px solid rgba(212, 175, 55, 0.1)', borderTopColor: 'var(--accent-gold)', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '20px' }} />
+        <div style={{ width: '40px', height: '40px', border: '3px solid rgba(212, 148, 58, 0.1)', borderTopColor: 'var(--accent-gold)', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '20px' }} />
         <h2 className="text-gradient-gold" style={{ fontSize: '1.25rem' }}>認証ゲートウェイ経由でリダイレクト中...</h2>
         <style jsx global>{`
           @keyframes spin {
@@ -110,13 +110,13 @@ function HomeContent() {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
                 <span style={{ fontSize: '1.75rem' }}>🧑‍🍳</span>
-                <h2 style={{ fontSize: '1.4rem', fontWeight: 600 }}>店員用管理画面 (Admin)</h2>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 600, color: 'var(--text-primary)' }}>店員用管理画面 (Admin)</h2>
               </div>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '20px', lineHeight: '1.6' }}>
                 テーブルの利用開始（チェックイン）、会計（チェックアウト）、リアルタイムな注文フィードの監視、ワンタイムQRコードの発行を行います。
               </p>
             </div>
-            <Link href="/admin" className="btn btn-emerald" style={{ textDecoration: 'none', width: '100%' }}>
+            <Link href="/admin" className="btn btn-emerald" style={{ textDecoration: 'none', width: '100%', color: '#fff' }}>
               管理画面を開く
             </Link>
           </div>
@@ -126,7 +126,7 @@ function HomeContent() {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
                 <span style={{ fontSize: '1.75rem' }}>📱</span>
-                <h2 style={{ fontSize: '1.4rem', fontWeight: 600 }}>顧客用注文画面 (Customer)</h2>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 600, color: 'var(--text-primary)' }}>顧客用注文画面 (Customer)</h2>
               </div>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '20px', lineHeight: '1.6' }}>
                 本来は卓上NFCタグのタップ（または専用QRコードのスキャン）でアクセスする画面です。このポータルからワンクリックでデモ卓を有効化して、注文画面をお試しいただけます。
@@ -182,7 +182,7 @@ export default function Home() {
   return (
     <Suspense fallback={
       <div style={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: 'var(--bg-primary)' }}>
-        <div style={{ width: '40px', height: '40px', border: '3px solid rgba(212, 175, 55, 0.1)', borderTopColor: 'var(--accent-gold)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+        <div style={{ width: '40px', height: '40px', border: '3px solid rgba(212, 148, 58, 0.1)', borderTopColor: 'var(--accent-gold)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
       </div>
     }>
       <HomeContent />

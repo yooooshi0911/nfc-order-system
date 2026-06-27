@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>JS生存確認テスト</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #fff; color: #000; }
+    .btn { display: block; width: 100%; padding: 20px; background: #3b82f6; color: #fff; text-align: center; border-radius: 8px; font-size: 18px; font-weight: bold; margin-bottom: 20px; text-decoration: none; border: none; cursor: pointer; }
+    .btn-red { background: #ef4444; }
+  </style>
+</head>
+<body>
+  <h1>純粋なHTMLテスト</h1>
+  <p>このページを開いた瞬間にアラートが出ましたか？出なかった場合、お使いのブラウザでJavaScriptが完全に無効化されています。</p>
+  
+  <button id="testBtn1" class="btn">テストボタン1 (JSでアラート)</button>
+  
+  <a href="#" id="testBtn2" class="btn btn-red">テストボタン2 (リンク)</a>
+
+  <div id="result" style="padding: 15px; background: #f3f4f6; margin-top: 20px;">
+    結果がここに表示されます...
+  </div>
+
+  <script>
+    alert('JavaScriptは有効です！(静的HTML)');
+    
+    document.getElementById('testBtn1').addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('result').innerHTML = 'ボタン1がクリックされました！時間: ' + new Date().toLocaleTimeString();
+    });
+
+    document.getElementById('testBtn2').addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('result').innerHTML = 'ボタン2がクリックされました！時間: ' + new Date().toLocaleTimeString();
+    });
+  </script>
+</body>
+</html>

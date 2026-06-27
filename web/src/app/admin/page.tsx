@@ -42,8 +42,8 @@ export default function AdminPage() {
   const [qrModalData, setQrModalData] = useState<{ tableId: string; qrUrl: string; qrCodeDataUrl: string } | null>(null);
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
 
-  // 画面のメイン表示切り替え用 ('dashboard' = 席状況 & 注文フィード, 'settings' = テーブル & タグ設定)
-  const [activeMenu, setActiveMenu] = useState<'dashboard' | 'settings'>('dashboard');
+  // 画面のメイン表示切り替え用 ('tables' = 席状況, 'orders' = 注文フィード, 'settings' = テーブル & タグ設定)
+  const [activeMenu, setActiveMenu] = useState<'tables' | 'orders' | 'settings'>('tables');
 
   // マスターデータ設定用サブタブ ('tables' | 'tags')
   const [activeTab, setActiveTab] = useState<'tables' | 'tags'>('tables');
@@ -172,7 +172,12 @@ export default function AdminPage() {
       return;
     }
 
-    const origin = window.location.origin;
+    // PC(localhost)から開いた場合でもスマホからアクセスできるようにIPを強制する
+    const currentOrigin = window.location.origin;
+    const origin = currentOrigin.includes('localhost') 
+      ? currentOrigin.replace('localhost', '192.168.0.194') 
+      : currentOrigin;
+      
     const qrUrl = `${origin}/auth?table_id=${table.table_id}&token=${table.qr_token}`;
     
     try {
@@ -329,8 +334,8 @@ export default function AdminPage() {
     <div className={styles.adminContainer}>
       <header className={styles.header}>
         <div className={styles.titleSection}>
-          <h1 className="text-gradient-gold">テーブル＆オーダー管理</h1>
-          <p>NTAG 424 DNA 連携・セキュアセルフオーダーシステム</p>
+          <h1 className="text-gradient-gold">帳場 - Management</h1>
+          <p>NTAG 424 DNA 連携セキュア注文・稼働管理システム</p>
         </div>
         <div className={styles.dbIndicator}>
           <div className={`${styles.dbDot} ${isOnline ? '' : styles.offline}`} />
@@ -338,36 +343,36 @@ export default function AdminPage() {
         </div>
       </header>
 
-      {/* 画面切り替えメインタブ (スクロール問題の解消) */}
-      <div style={{
-        gridColumn: '1 / -1',
-        display: 'flex',
-        gap: '10px',
-        marginBottom: '20px',
-        borderBottom: '1px solid var(--glass-border)',
-        paddingBottom: '15px'
-      }}>
+      {/* 画面切り替えメインタブ (レスポンシブ考慮) */}
+      <div className={styles.menuTabRow}>
         <button
-          className={`${styles.tabBtn} ${activeMenu === 'dashboard' ? styles.active : ''}`}
-          onClick={() => setActiveMenu('dashboard')}
-          style={{ fontSize: '1.05rem', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '8px' }}
+          className={`${styles.tabBtn} ${activeMenu === 'tables' ? styles.active : ''}`}
+          onClick={() => setActiveMenu('tables')}
         >
-          <span>📊</span> 稼働状況 (Dashboard)
+          <span>📊</span> 座席管理
+        </button>
+        <button
+          className={`${styles.tabBtn} ${activeMenu === 'orders' ? styles.active : ''}`}
+          onClick={() => setActiveMenu('orders')}
+        >
+          <span>🧾</span> 注文フィード
+          {orders.length > 0 && (
+            <span className={styles.badgeAlert} style={{ marginLeft: '8px', background: 'var(--accent-rose)', color: 'white', padding: '2px 6px', borderRadius: '10px', fontSize: '0.75rem' }}>{orders.length}</span>
+          )}
         </button>
         <button
           className={`${styles.tabBtn} ${activeMenu === 'settings' ? styles.active : ''}`}
           onClick={() => setActiveMenu('settings')}
-          style={{ fontSize: '1.05rem', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '8px' }}
         >
-          <span>⚙️</span> マスタ設定 (Settings)
+          <span>⚙️</span> マスタ設定
         </button>
       </div>
 
-      {activeMenu === 'dashboard' ? (
-        <>
-          {/* メイン: テーブル一覧 */}
-          <section>
-            <h2 style={{ marginBottom: '20px', fontSize: '1.4rem' }}>テーブル状況一覧</h2>
+      {activeMenu === 'tables' && (
+        <section className={`${styles.tablesSection} animate-fade-in`}>
+            <h2 style={{ marginBottom: '20px', fontSize: '1.25rem', borderLeft: '3px solid var(--accent-gold)', paddingLeft: '10px' }}>
+              座席稼働状況
+            </h2>
             <div className={styles.tablesGrid}>
               {tables.map((table) => {
                 const tableTag = tags.find((t) => t.table_id === table.table_id);
@@ -380,7 +385,7 @@ export default function AdminPage() {
                     className={`${styles.tableCard} glass-panel ${isOccupied ? styles.occupied : styles.available}`}
                   >
                     <div className={styles.cardHeader}>
-                      <div className={styles.tableName}>{table.table_id}番テーブル</div>
+                      <div className={styles.tableName}>{table.table_id}番席</div>
                       <span className={`badge ${isOccupied ? 'badge-occupied' : 'badge-available'}`}>
                         {isOccupied ? '利用中' : '空席'}
                       </span>
@@ -389,10 +394,10 @@ export default function AdminPage() {
                     <div className={styles.cardBody}>
                       {isOccupied ? (
                         <div>
-                          <p style={{ color: 'var(--text-primary)' }}>食事中</p>
+                          <p style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>お食事中</p>
                           {tableTag && (
                             <div className={styles.counterInfo}>
-                              NFC Counter: {tableTag.current_max_ctr} (無効しきい値: {tableTag.invalidated_ctr})
+                              NFC カウンター: {tableTag.current_max_ctr}
                             </div>
                           )}
                         </div>
@@ -426,7 +431,7 @@ export default function AdminPage() {
                           onClick={() => handleCheckin(table.table_id)}
                           disabled={isLoading}
                         >
-                          {isLoading ? '処理中...' : '案内（利用開始）'}
+                          {isLoading ? '処理中...' : '利用開始 (案内)'}
                         </button>
                       )}
                     </div>
@@ -435,8 +440,10 @@ export default function AdminPage() {
               })}
             </div>
           </section>
+      )}
 
-          {/* サイドバー: リアルタイム注文フィード */}
+      {activeMenu === 'orders' && (
+        <section className={`${styles.ordersSection} animate-fade-in`}>
           <aside className={`${styles.orderFeed} glass-panel`}>
             <div className={styles.feedHeader}>
               <div className={styles.feedTitle}>注文フィード</div>
@@ -459,7 +466,7 @@ export default function AdminPage() {
                   return (
                     <div key={order.id} className={styles.orderCard}>
                       <div className={styles.orderCardHeader}>
-                        <span className={styles.orderTableId}>{order.table_id}番テーブル</span>
+                        <span className={styles.orderTableId}>{order.table_id}番席</span>
                         <span className={styles.orderTime}>{formattedTime}</span>
                       </div>
 
@@ -478,14 +485,14 @@ export default function AdminPage() {
                             <button
                               className="btn btn-secondary"
                               onClick={() => updateOrderStatus(order.id, 'cancelled')}
-                              style={{ padding: '6px 12px' }}
+                              style={{ padding: '6px 12px', minHeight: '36px', minWidth: '50px' }}
                             >
                               取消
                             </button>
                             <button
                               className="btn btn-emerald"
                               onClick={() => updateOrderStatus(order.id, 'served')}
-                              style={{ padding: '6px 12px' }}
+                              style={{ padding: '6px 12px', minHeight: '36px', minWidth: '70px' }}
                             >
                               提供済
                             </button>
@@ -502,12 +509,14 @@ export default function AdminPage() {
               )}
             </div>
           </aside>
-        </>
-      ) : (
+        </section>
+      )}
+
+      {activeMenu === 'settings' && (
         /* 設定画面 (ダッシュボード非表示時はこちらを全幅表示) */
-        <section className={`${styles.managementSection} animate-fade-in`} style={{ gridColumn: '1 / -1', marginTop: 0, borderTop: 'none', paddingTop: 0 }}>
+        <section className={`${styles.managementSection} animate-fade-in`}>
           <div className={styles.sectionHeader}>
-            <h2>店舗マスタ設定</h2>
+            <h2 style={{ fontSize: '1.25rem', borderLeft: '3px solid var(--accent-gold)', paddingLeft: '10px' }}>店舗マスタ設定</h2>
             <div className={styles.tabs}>
               <button
                 className={`${styles.tabBtn} ${activeTab === 'tables' ? styles.active : ''}`}
@@ -529,7 +538,7 @@ export default function AdminPage() {
               {/* テーブル追加フォーム */}
               <form onSubmit={handleAddTable} className={styles.formGroup}>
                 <div className={styles.inputField}>
-                  <label htmlFor="new_table_id">新規追加テーブル番号</label>
+                  <label htmlFor="new_table_id">新規座席番号</label>
                   <input
                     id="new_table_id"
                     type="text"
@@ -538,8 +547,8 @@ export default function AdminPage() {
                     onChange={(e) => setNewTableId(e.target.value)}
                   />
                 </div>
-                <button type="submit" className="btn btn-emerald" style={{ padding: '10px 24px' }}>
-                  テーブル追加
+                <button type="submit" className="btn btn-emerald" style={{ padding: '10px 24px', minHeight: '44px' }}>
+                  座席追加
                 </button>
               </form>
 
@@ -548,7 +557,7 @@ export default function AdminPage() {
                 <table className={styles.manageTable}>
                   <thead>
                     <tr>
-                      <th>テーブルID</th>
+                      <th>座席番号</th>
                       <th>現在の状態</th>
                       <th>QRトークン</th>
                       <th>操作</th>
@@ -557,19 +566,19 @@ export default function AdminPage() {
                   <tbody>
                     {tables.map(t => (
                       <tr key={t.table_id}>
-                        <td style={{ fontWeight: 'bold' }}>{t.table_id}番テーブル</td>
+                        <td style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>{t.table_id}番席</td>
                         <td>
                           <span className={`badge ${t.status === 'occupied' ? 'badge-occupied' : 'badge-available'}`}>
-                            {t.status === 'occupied' ? '利用中 (食事中)' : '空席'}
+                            {t.status === 'occupied' ? '利用中' : '空席'}
                           </span>
                         </td>
-                        <td style={{ fontFamily: 'Consolas, monospace', fontSize: '0.8rem' }}>
+                        <td style={{ fontFamily: 'Consolas, monospace', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                           {t.qr_token || '-'}
                         </td>
                         <td>
                           <button
                             className="btn btn-rose"
-                            style={{ padding: '6px 12px', fontSize: '0.8rem' }}
+                            style={{ padding: '6px 12px', fontSize: '0.8rem', minHeight: '32px' }}
                             onClick={() => handleDeleteTable(t.table_id)}
                             disabled={t.status === 'occupied'}
                           >
@@ -608,21 +617,22 @@ export default function AdminPage() {
                   />
                 </div>
                 <div className={styles.inputField}>
-                  <label htmlFor="tag_table">初期紐付けテーブル</label>
+                  <label htmlFor="tag_table">紐付け座席</label>
                   <select
                     id="tag_table"
                     value={newTagTableId}
                     onChange={(e) => setNewTagTableId(e.target.value)}
+                    style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--glass-border)' }}
                   >
                     <option value="none">紐付けなし</option>
                     {tables.map(t => (
                       <option key={t.table_id} value={t.table_id}>
-                        {t.table_id}番テーブル
+                        {t.table_id}番席
                       </option>
                     ))}
                   </select>
                 </div>
-                <button type="submit" className="btn btn-emerald" style={{ padding: '10px 24px' }}>
+                <button type="submit" className="btn btn-emerald" style={{ padding: '10px 24px', minHeight: '44px' }}>
                   新規タグ登録
                 </button>
               </form>
@@ -634,7 +644,7 @@ export default function AdminPage() {
                     <tr>
                       <th>シリアル</th>
                       <th>タグ UID</th>
-                      <th>紐付けテーブル</th>
+                      <th>紐付け座席</th>
                       <th>カウンター状況</th>
                       <th>操作</th>
                     </tr>
@@ -642,8 +652,8 @@ export default function AdminPage() {
                   <tbody>
                     {tags.map(tag => (
                       <tr key={tag.uid}>
-                        <td style={{ fontWeight: 'bold' }}>{tag.serial_number}</td>
-                        <td style={{ fontFamily: 'Consolas, monospace', fontSize: '0.85rem' }}>{tag.uid}</td>
+                        <td style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>{tag.serial_number}</td>
+                        <td style={{ fontFamily: 'Consolas, monospace', fontSize: '0.85rem', color: 'var(--text-primary)' }}>{tag.uid}</td>
                         <td>
                           <select
                             value={tag.table_id || 'none'}
@@ -660,18 +670,18 @@ export default function AdminPage() {
                             <option value="none">紐付けなし</option>
                             {tables.map(t => (
                               <option key={t.table_id} value={t.table_id}>
-                                {t.table_id}番テーブル
+                                {t.table_id}番席
                               </option>
                             ))}
                           </select>
                         </td>
                         <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                          Max CTR: {tag.current_max_ctr} / Invalid CTR: {tag.invalidated_ctr}
+                          最大: {tag.current_max_ctr} / 無効: {tag.invalidated_ctr}
                         </td>
                         <td>
                           <button
                             className="btn btn-rose"
-                            style={{ padding: '6px 12px', fontSize: '0.8rem' }}
+                            style={{ padding: '6px 12px', fontSize: '0.8rem', minHeight: '32px' }}
                             onClick={() => handleDeleteTag(tag.uid)}
                           >
                             削除
@@ -692,7 +702,7 @@ export default function AdminPage() {
         <div className={styles.modalOverlay} onClick={() => setQrModalData(null)}>
           <div className={`${styles.modalContent} glass-panel`} onClick={(e) => e.stopPropagation()}>
             <h3 className="text-gradient-gold" style={{ fontSize: '1.4rem' }}>
-              {qrModalData.tableId}番テーブル QRコード
+              {qrModalData.tableId}番席 QRコード
             </h3>
             <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
               NFC非対応スマホの場合は、このQRコードを読み取って注文画面を開いてください。
@@ -705,7 +715,7 @@ export default function AdminPage() {
 
             <div className={styles.qrUrl}>{qrModalData.qrUrl}</div>
 
-            <button className="btn btn-secondary closeBtn" onClick={() => setQrModalData(null)}>
+            <button className="btn btn-secondary closeBtn" onClick={() => setQrModalData(null)} style={{ width: '100%', minHeight: '44px', marginTop: '10px' }}>
               閉じる
             </button>
           </div>

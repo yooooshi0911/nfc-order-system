@@ -7,7 +7,9 @@ export const runtime = 'nodejs';
 
 // エラー画面へのリダイレクトヘルパー
 function redirectToError(request: NextRequest, message: string) {
-  const url = new URL('/auth-error', request.url);
+  const host = request.headers.get('host') || 'localhost:3000';
+  const protocol = request.headers.get('x-forwarded-proto') || 'http';
+  const url = new URL('/auth-error', `${protocol}://${host}`);
   url.searchParams.set('reason', message);
   return NextResponse.redirect(url);
 }
@@ -154,10 +156,13 @@ export async function GET(request: NextRequest) {
     }
 
     // /menu への一時リダイレクト応答
+    const host = request.headers.get('host') || 'localhost:3000';
+    const protocol = request.headers.get('x-forwarded-proto') || 'http';
+    
     return new NextResponse(null, {
       status: 307,
       headers: {
-        'Location': '/menu',
+        'Location': `${protocol}://${host}/menu`,
         'Set-Cookie': cookieOptions.join('; ')
       }
     });
