@@ -4,15 +4,46 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import styles from './menu.module.css';
 
-// メニューのモックデータ（和風居酒屋メニュー）
-const MENU_ITEMS = [
-  { menu_id: 'm1', name: '極み生ビール (中)', price: 580, category: 'drink', emoji: '🍺', desc: '氷点下で管理された、のどごし抜群のプレミアムモルツ。' },
-  { menu_id: 'm2', name: '角ハイボール', price: 480, category: 'drink', emoji: '🥃', desc: '強炭酸で仕上げた爽快な一杯。レモン添え。' },
-  { menu_id: 'm3', name: '秘伝の唐揚げ (4個)', price: 650, category: 'food', emoji: '🍗', desc: '秘伝のタレに丸一日漬け込んだジューシーな唐揚げ。' },
-  { menu_id: 'm4', name: '炭火焼き鳥 5本盛り', price: 880, category: 'food', emoji: '🍢', desc: '一本ずつ丁寧に焼き上げた、タレと塩の盛り合わせ。' },
-  { menu_id: 'm5', name: '濃厚醤油ラーメン', price: 920, category: 'food', emoji: '🍜', desc: 'じっくり煮込んだ特製醤油スープと自家製中細麺。' },
-  { menu_id: 'm6', name: '彩り温野菜の温サラダ', price: 720, category: 'food', emoji: '🥗', desc: '季節の野菜を特製ごまドレッシングでさっぱりと。' },
-  { menu_id: 'm7', name: '濃厚宇治抹茶アイス', price: 380, category: 'dessert', emoji: '🍨', desc: '京都宇治の厳選抹茶を使用した贅沢和風アイス。' },
+export type LayoutSize = 'large' | 'medium' | 'small';
+
+export interface MenuItemData {
+  menu_id: string;
+  name: string;
+  price: number;
+  category: string;
+  emoji?: string;
+  desc?: string;
+  image?: string;
+  badge?: string;
+  soldOut?: boolean;
+  layoutSize?: LayoutSize;
+}
+
+// 新デザインに合わせたモックデータ
+const MENU_ITEMS: MenuItemData[] = [
+  // 定食 (中サイズグリッド)
+  { menu_id: 'm1', name: '一日定食', price: 1300, category: 'teishoku', image: '/images/teishoku.png', layoutSize: 'medium' },
+  { menu_id: 'm2', name: '元気定食', price: 1300, category: 'teishoku', image: '/images/teishoku.png', badge: '当店1番人気!', layoutSize: 'medium' },
+  { menu_id: 'm3', name: '回復定食', price: 1350, category: 'teishoku', image: '/images/teishoku.png', layoutSize: 'medium' },
+  { menu_id: 'm4', name: '満点定食', price: 1350, category: 'teishoku', image: '/images/teishoku.png', layoutSize: 'medium' },
+  { menu_id: 'm5', name: 'ヴィーガン定食', price: 1400, category: 'teishoku', image: '/images/teishoku.png', soldOut: true, layoutSize: 'medium' },
+  // おすすめ・ディナー (大サイズ)
+  { menu_id: 'm6', name: '薬膳おでん 盛り合わせ', price: 1200, category: 'recommend', image: '/images/oden.png', layoutSize: 'large' },
+  { menu_id: 'm7', name: 'とろあじ定食', price: 1980, category: 'dinner', image: '/images/teishoku.png', badge: '夜限定!!', layoutSize: 'large' },
+  // 逸品 (中〜小サイズ)
+  { menu_id: 'm8', name: '炭火焼き鳥 5本盛り', price: 880, category: 'ippin', image: '/images/yakitori.png', layoutSize: 'medium' },
+  // 追加メニュー (小サイズ)
+  { menu_id: 'a1', name: '西たまご', price: 200, category: 'side', image: '/images/oden.png', layoutSize: 'small' },
+  { menu_id: 'a2', name: 'とろろ', price: 200, category: 'side', image: '/images/oden.png', layoutSize: 'small' },
+  { menu_id: 'a3', name: '納豆', price: 200, category: 'side', image: '/images/oden.png', layoutSize: 'small' },
+];
+
+export const CATEGORIES = [
+  { id: 'teishoku', label: '定食' },
+  { id: 'side', label: '追加メニュー' },
+  { id: 'recommend', label: 'おすすめ' },
+  { id: 'dinner', label: '夜限定' },
+  { id: 'ippin', label: '一品' },
 ];
 
 interface CartItem {
@@ -207,47 +238,89 @@ export default function MenuContent({ table_id, session_type }: MenuContentProps
       {/* メインコンテンツ領域（スクロール可能） */}
       <div className={styles.contentArea}>
         {activeTab === 'menu' && (
-          <div className={`${styles.tabContent} animate-fade-in`}>
-            <h2 className={styles.pageTitle}>お品書き</h2>
-            <div className={styles.menuList}>
-              {MENU_ITEMS.map((item) => {
-                const qty = getCartQuantity(item.menu_id);
+          <div className={`${styles.menuLayout} animate-fade-in`}>
+            {/* 左サイドバー */}
+            <aside className={styles.sidebar}>
+              <ul className={styles.sidebarList}>
+                {CATEGORIES.map((c) => (
+                  <li key={c.id} className={styles.sidebarItem}>
+                    <a href={`#cat-${c.id}`}>{c.label}</a>
+                  </li>
+                ))}
+              </ul>
+            </aside>
+            
+            {/* メイン商品一覧 */}
+            <div className={styles.mainContent}>
+              <h2 className={styles.pageTitle}>お品書き</h2>
+              {CATEGORIES.map((category) => {
+                const items = MENU_ITEMS.filter((item) => item.category === category.id);
+                if (items.length === 0) return null;
+                
                 return (
-                  <div key={item.menu_id} className={styles.menuCard}>
-                    <div className={styles.menuCardMain}>
-                      <div className={styles.menuIcon}>{item.emoji}</div>
-                      <div className={styles.menuInfo}>
-                        <div className={styles.menuName}>{item.name}</div>
-                        <div className={styles.menuDesc}>{item.desc}</div>
-                        <div className={styles.menuPrice}>¥{item.price.toLocaleString()}</div>
-                      </div>
+                  <section key={category.id} id={`cat-${category.id}`} className={styles.categorySection}>
+                    <h3 className={styles.categoryTitle}>{category.label}</h3>
+                    <div className={styles.gridContainer}>
+                      {items.map((item) => {
+                        const qty = getCartQuantity(item.menu_id);
+                        const cardClass = 
+                          item.layoutSize === 'large' ? styles.cardLarge :
+                          item.layoutSize === 'medium' ? styles.cardMedium :
+                          styles.cardSmall;
+
+                        return (
+                          <div key={item.menu_id} className={`${styles.menuCard} ${cardClass}`}>
+                            {item.badge && <div className={styles.badgeRed}>{item.badge}</div>}
+                            
+                            {item.image ? (
+                              <div className={styles.imageContainer}>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={item.image} alt={item.name} className={styles.menuImage} />
+                                {item.soldOut && <div className={styles.soldOutOverlay}>SOLD OUT</div>}
+                              </div>
+                            ) : (
+                              <div className={styles.imageContainer}>
+                                <div className={styles.menuIcon}>{item.emoji}</div>
+                                {item.soldOut && <div className={styles.soldOutOverlay}>SOLD OUT</div>}
+                              </div>
+                            )}
+                            
+                            <div className={styles.menuInfo}>
+                              <div className={styles.menuName}>{item.name}</div>
+                              {item.desc && <div className={styles.menuDesc}>{item.desc}</div>}
+                              <div className={styles.menuPrice}>¥{item.price.toLocaleString()}</div>
+                            </div>
+
+                            <div className={styles.menuCardAction}>
+                              {qty > 0 ? (
+                                <div className={styles.qtyControl}>
+                                  <div 
+                                    className={styles.qtyBtnMobile} 
+                                    onClick={() => updateCartQty(item.menu_id, -1)}
+                                    role="button"
+                                  >-</div>
+                                  <span className={styles.qtyLabel}>{qty}</span>
+                                  <div 
+                                    className={styles.qtyBtnMobile} 
+                                    onClick={() => updateCartQty(item.menu_id, 1)}
+                                    role="button"
+                                  >+</div>
+                                </div>
+                              ) : (
+                                <button 
+                                  className={`${styles.addBtnMobile} ${item.soldOut ? styles.soldOutBtn : ''}`}
+                                  onClick={() => !item.soldOut && updateCartQty(item.menu_id, 1)}
+                                  disabled={item.soldOut}
+                                >
+                                  {item.soldOut ? '売切' : '追加'}
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                    <div className={styles.menuCardAction}>
-                      {qty > 0 ? (
-                        <div className={styles.qtyControl}>
-                          <div 
-                            className={styles.qtyBtnMobile} 
-                            onClick={() => updateCartQty(item.menu_id, -1)}
-                            role="button"
-                          >-</div>
-                          <span className={styles.qtyLabel}>{qty}</span>
-                          <div 
-                            className={styles.qtyBtnMobile} 
-                            onClick={() => updateCartQty(item.menu_id, 1)}
-                            role="button"
-                          >+</div>
-                        </div>
-                      ) : (
-                        <div 
-                          className={styles.addBtnMobile} 
-                          onClick={() => updateCartQty(item.menu_id, 1)}
-                          role="button"
-                        >
-                          追加
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  </section>
                 );
               })}
             </div>
