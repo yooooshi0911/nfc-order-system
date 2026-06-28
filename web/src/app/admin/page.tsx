@@ -172,11 +172,8 @@ export default function AdminPage() {
       return;
     }
 
-    // PC(localhost)から開いた場合でもスマホからアクセスできるようにIPを強制する
-    const currentOrigin = window.location.origin;
-    const origin = currentOrigin.includes('localhost') 
-      ? currentOrigin.replace('localhost', '192.168.0.194') 
-      : currentOrigin;
+    // 現在のオリジン(Vercelなど)をそのまま使用
+    const origin = window.location.origin;
       
     const qrUrl = `${origin}/auth?table_id=${table.table_id}&token=${table.qr_token}`;
     

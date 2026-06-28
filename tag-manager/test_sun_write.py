@@ -130,7 +130,7 @@ def main():
     # - uid: 14桁の16進数 (14文字)
     # - ctr: 6桁の16進数 (6文字)
     # - mac: 16桁の16進数 (16文字)
-    base_url = "http://localhost:3000/auth"
+    base_url = "https://nfc-order-system.vercel.app/auth"
     url_template = f"{base_url}?uid=00000000000000&ctr=000000&mac=0000000000000000"
     
     try:
