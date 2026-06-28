@@ -42,9 +42,11 @@
 }
 
 .brand {
+  font-family: var(--font-serif);
   font-size: 1.3rem;
   font-weight: 700;
   color: var(--text-primary);
+  letter-spacing: 0.03em;
 }
 
 .tableBadge {
@@ -122,10 +124,12 @@
 }
 
 .menuName {
+  font-family: var(--font-serif);
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 4px;
+  letter-spacing: 0.02em;
 }
 
 .menuDesc {
@@ -215,8 +219,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.15) 100%);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: linear-gradient(135deg, var(--accent-gold-light) 0%, rgba(30, 58, 138, 0.08) 100%);
+  border: 1px solid rgba(30, 58, 138, 0.15);
   padding: 16px 20px;
   border-radius: var(--radius-md);
   margin-bottom: 24px;
@@ -289,9 +293,9 @@
 }
 
 .statusPending {
-  background: rgba(59, 130, 246, 0.1);
+  background: var(--accent-gold-light);
   color: var(--accent-gold);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(30, 58, 138, 0.2);
   padding: 4px 10px;
   border-radius: 9999px;
   font-size: 0.75rem;
@@ -574,14 +578,15 @@
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-md);
-  background: linear-gradient(135deg, var(--accent-gold) 0%, #1e40af 100%);
+  background: var(--accent-gold);
   color: #fff;
   font-size: 1.15rem;
   font-weight: 700;
-  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+  box-shadow: var(--shadow-gold);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
+  transition: transform 0.1s, box-shadow 0.1s;
 }
 
 .submitBtn:active {

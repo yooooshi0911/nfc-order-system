@@ -1,44 +1,77 @@
+/* =========================================================
+   帳場 管理ダッシュボード — Premium POS Design
+   ========================================================= */
+
+/* ── 全体コンテナ ── */
 .adminContainer {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 32px 28px 48px;
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 0;
+  min-height: 100vh;
 }
 
+/* ── ヘッダー ── */
 .header {
-  grid-column: 1 / -1;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  border-bottom: 1px solid var(--glass-border);
-  padding-bottom: 20px;
+  margin-bottom: 0;
+  padding: 24px 32px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 32px;
+  right: 32px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(30, 58, 138, 0.2) 20%,
+    rgba(30, 58, 138, 0.35) 50%,
+    rgba(30, 58, 138, 0.2) 80%,
+    transparent 100%
+  );
 }
 
 .titleSection h1 {
-  font-size: 2.2rem;
+  font-size: 2rem;
   font-weight: 700;
   letter-spacing: -0.5px;
+  font-family: var(--font-serif);
 }
 
 .titleSection p {
   color: var(--text-secondary);
-  font-size: 0.95rem;
-  margin-top: 5px;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  letter-spacing: 0.3px;
+  font-weight: 400;
 }
 
+/* DB同期インジケーター */
 .dbIndicator {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.85rem;
-  background: var(--bg-secondary);
-  padding: 8px 16px;
-  border-radius: var(--radius-sm);
+  gap: 10px;
+  font-size: 0.8rem;
+  background: var(--bg-tertiary);
+  padding: 8px 18px;
+  border-radius: 9999px;
   border: 1px solid var(--glass-border);
-  color: var(--text-primary);
+  color: var(--text-secondary);
+  font-weight: 500;
+  letter-spacing: 0.2px;
 }
 
 .dbDot {
@@ -46,43 +79,123 @@
   height: 8px;
   border-radius: 50%;
   background: var(--accent-emerald);
-  box-shadow: 0 0 10px var(--accent-emerald);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
+  50% { opacity: 0.7; box-shadow: 0 0 14px rgba(16, 185, 129, 0.7); }
 }
 
 .dbDot.offline {
   background: var(--accent-rose);
-  box-shadow: 0 0 10px var(--accent-rose);
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+  animation: pulse-dot-offline 2s ease-in-out infinite;
 }
 
-/* メインタブ */
+@keyframes pulse-dot-offline {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+  50% { opacity: 0.7; box-shadow: 0 0 14px rgba(239, 68, 68, 0.7); }
+}
+
+/* ── メインタブナビゲーション ── */
 .menuTabRow {
-  grid-column: 1 / -1;
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  border-bottom: 1px solid var(--glass-border);
-  padding-bottom: 15px;
+  gap: 0;
+  margin-bottom: 24px;
+  padding: 0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--glass-border);
+  border-top: none;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
 }
 
-/* テーブルグリッド */
+.tabBtn {
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 14px 28px;
+  border-radius: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  transition: all var(--transition-fast);
+  border-bottom: 3px solid transparent;
+  flex: 1;
+  justify-content: center;
+}
+
+.tabBtn:hover {
+  color: var(--text-primary);
+  background: var(--accent-gold-light);
+}
+
+.tabBtn.active {
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold-hover) 100%);
+  font-weight: 700;
+  border-bottom: 3px solid var(--accent-gold-hover);
+  box-shadow: inset 0 -2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* タブ内の通知バッジ */
+.badgeAlert {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: var(--accent-rose);
+  color: #fff;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+}
+
+/* ── セクションラッパー (TSXで使用) ── */
+.tablesSection {
+  animation: sectionFadeIn 0.3s ease-out forwards;
+}
+
+.ordersSection {
+  animation: sectionFadeIn 0.3s ease-out forwards;
+}
+
+@keyframes sectionFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── テーブルカードグリッド ── */
 .tablesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
   align-content: start;
 }
 
 .tableCard {
-  padding: 24px;
+  padding: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 200px;
+  min-height: 210px;
   position: relative;
   overflow: hidden;
-  transition: var(--transition-normal);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   background: var(--bg-secondary);
   border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
 }
 
 .tableCard::before {
@@ -90,102 +203,144 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 4px;
+  width: 5px;
   height: 100%;
-  background: var(--text-muted);
-  transition: var(--transition-fast);
+  background: var(--bg-tertiary);
+  transition: background var(--transition-fast);
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
 }
 
 .tableCard.occupied::before {
-  background: var(--accent-gold);
+  background: linear-gradient(180deg, var(--accent-gold) 0%, var(--accent-gold-hover) 100%);
 }
 
 .tableCard.available::before {
-  background: var(--accent-emerald);
+  background: linear-gradient(180deg, var(--accent-emerald) 0%, #065f46 100%);
 }
 
 .tableCard:hover {
-  transform: translateY(-4px);
-  border-color: var(--accent-gold);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+  border-color: rgba(30, 58, 138, 0.25);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.tableCard.occupied:hover {
+  border-color: rgba(30, 58, 138, 0.35);
+}
+
+.tableCard.available:hover {
+  border-color: rgba(16, 185, 129, 0.35);
 }
 
 .cardHeader {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20px;
+  margin-bottom: 0;
+  padding: 20px 22px 12px;
 }
 
 .tableName {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: var(--text-primary);
+  font-family: var(--font-serif);
+  letter-spacing: -0.3px;
 }
 
 .cardBody {
-  margin-bottom: 24px;
+  padding: 0 22px 16px;
+  flex: 1;
 }
 
 .counterInfo {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  margin-top: 5px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+  background: var(--bg-tertiary);
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-family: 'Consolas', 'SF Mono', monospace;
+  letter-spacing: 0.3px;
 }
 
 .cardActions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
+  padding: 0 22px 20px;
+  border-top: 1px solid var(--glass-border);
+  padding-top: 16px;
+  margin-top: auto;
 }
 
 .cardActions button {
   flex: 1;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   padding: 8px 12px;
-  min-height: 38px;
+  min-height: 40px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
 }
 
 .qrBtn {
   background: var(--bg-tertiary);
   border: 1px solid var(--glass-border);
-  color: var(--text-primary);
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  flex: 0 0 38px !important;
+  width: 40px;
+  flex: 0 0 40px !important;
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-sm);
-  min-height: 38px;
+  min-height: 40px;
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  transition: all var(--transition-fast);
 }
 
 .qrBtn:hover {
-  background: var(--bg-secondary);
+  background: var(--accent-gold-light);
   border-color: var(--accent-gold);
   color: var(--accent-gold);
+  box-shadow: 0 2px 8px rgba(30, 58, 138, 0.15);
 }
 
-/* 注文フィード */
+/* ── 注文フィード ── */
 .orderFeed {
   display: flex;
   flex-direction: column;
   min-height: 500px;
   background: var(--bg-secondary);
   border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
 }
 
 .feedHeader {
-  padding: 20px;
+  padding: 20px 24px;
   border-bottom: 1px solid var(--glass-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: linear-gradient(
+    135deg,
+    var(--bg-secondary) 0%,
+    var(--accent-gold-light) 100%
+  );
 }
 
 .feedTitle {
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-size: 1.15rem;
+  font-weight: 700;
   color: var(--text-primary);
+  font-family: var(--font-serif);
+  letter-spacing: 0.5px;
 }
 
 .orderList {
@@ -194,26 +349,44 @@
   padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 14px;
 }
 
 .emptyOrders {
   text-align: center;
   color: var(--text-muted);
-  padding: 40px 0;
+  padding: 80px 20px;
   font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.emptyOrders::before {
+  content: '📋';
+  font-size: 3rem;
+  opacity: 0.4;
+  display: block;
 }
 
 .orderCard {
-  padding: 18px;
+  padding: 18px 20px;
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
-  background: var(--bg-tertiary);
+  background: var(--bg-secondary);
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   gap: 12px;
   animation: slideIn var(--transition-fast) forwards;
+  transition: border-color var(--transition-fast);
+  border-left: 4px solid var(--accent-gold);
+}
+
+.orderCard:hover {
+  border-color: rgba(30, 58, 138, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
 @keyframes slideIn {
@@ -225,203 +398,271 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  padding-bottom: 8px;
+  border-bottom: 1px solid var(--glass-border);
+  padding-bottom: 10px;
 }
 
 .orderTableId {
   font-weight: 700;
   font-size: 1rem;
-  color: var(--text-primary);
+  color: var(--accent-gold);
+  font-family: var(--font-serif);
 }
 
 .orderTime {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
+  background: var(--bg-tertiary);
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-family: 'Consolas', 'SF Mono', monospace;
 }
 
 .orderItems {
   list-style: none;
+  padding: 4px 0;
 }
 
 .orderItem {
   display: flex;
   justify-content: space-between;
-  font-size: 0.9rem;
-  margin-bottom: 6px;
+  font-size: 0.88rem;
+  padding: 5px 0;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.05);
+}
+
+.orderItem:last-child {
+  border-bottom: none;
 }
 
 .itemName {
   color: var(--text-primary);
+  font-weight: 500;
 }
 
 .itemQty {
   color: var(--accent-gold);
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 0.85rem;
 }
 
 .orderCardActions {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
-  margin-top: 5px;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--glass-border);
 }
 
-/* モーダル */
+/* ── QR モーダル ── */
 .modalOverlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  animation: overlayFadeIn 0.2s ease-out forwards;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .modalContent {
   width: 90%;
-  max-width: 450px;
-  padding: 30px;
+  max-width: 440px;
+  padding: 36px 32px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 18px;
   background: var(--bg-secondary);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.12),
+    0 8px 24px rgba(0, 0, 0, 0.08);
+  animation: modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: scale(0.92) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .qrContainer {
-  background: white;
-  padding: 15px;
+  background: #ffffff;
+  padding: 24px;
   border-radius: var(--radius-md);
-  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    inset 0 0 0 1px var(--glass-border);
+  border: 2px solid var(--accent-gold-light);
   display: inline-block;
-  margin: 10px 0;
+  margin: 8px 0;
+  position: relative;
+}
+
+.qrContainer::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    135deg,
+    rgba(30, 58, 138, 0.15) 0%,
+    transparent 50%,
+    rgba(30, 58, 138, 0.1) 100%
+  );
+  z-index: -1;
+  padding: 2px;
 }
 
 .qrUrl {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-secondary);
   word-break: break-all;
   background: var(--bg-tertiary);
-  padding: 10px;
+  padding: 12px 16px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--glass-border);
   width: 100%;
+  font-family: 'Consolas', 'SF Mono', monospace;
+  line-height: 1.5;
 }
 
 .closeBtn {
   width: 100%;
 }
 
-/* マスター管理セクション */
+/* ── マスター管理セクション ── */
 .managementSection {
-  grid-column: 1 / -1;
-  margin-top: 20px;
+  margin-top: 0;
+  animation: sectionFadeIn 0.3s ease-out forwards;
 }
 
 .sectionHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
   flex-wrap: wrap;
   gap: 15px;
+  padding: 20px 24px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
 }
 
 .sectionHeader h2 {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: var(--text-primary);
+  font-family: var(--font-serif);
 }
 
+/* サブタブコンテナ */
 .tabs {
   display: flex;
-  gap: 6px;
-  background: var(--bg-secondary);
-  padding: 6px;
+  gap: 4px;
+  background: var(--bg-tertiary);
+  padding: 4px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--glass-border);
 }
 
-.tabBtn {
-  background: transparent;
-  color: var(--text-secondary);
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.tabBtn:hover {
-  color: var(--text-primary);
-}
-
-.tabBtn.active {
-  color: #000;
-  background: var(--accent-gold);
-  box-shadow: var(--shadow-gold);
-  font-weight: 700;
-}
-
+/* ── 管理パネル ── */
 .managePanel {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
 }
 
+/* フォームグループ */
 .formGroup {
   display: flex;
-  gap: 15px;
+  gap: 14px;
   align-items: flex-end;
   flex-wrap: wrap;
   background: var(--bg-secondary);
-  padding: 20px;
-  border-radius: var(--radius-sm);
+  padding: 22px 24px;
+  border-radius: var(--radius-md);
   border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+
+.formGroup::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--accent-gold) 0%,
+    var(--accent-gold-light) 100%
+  );
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
 
 .inputField {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   flex: 1;
   min-width: 150px;
 }
 
 .inputField label {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--text-secondary);
   font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: none;
 }
 
-.inputField input, .inputField select {
+.inputField input,
+.inputField select {
   background: var(--bg-tertiary);
   border: 1px solid var(--glass-border);
   color: var(--text-primary);
   padding: 10px 14px;
   border-radius: var(--radius-sm);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   outline: none;
-  transition: var(--transition-fast);
+  transition: all var(--transition-fast);
+  font-family: var(--font-sans);
 }
 
-.inputField input:focus, .inputField select:focus {
+.inputField input::placeholder {
+  color: var(--text-muted);
+}
+
+.inputField input:focus,
+.inputField select:focus {
   border-color: var(--accent-gold);
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+  background: var(--bg-secondary);
 }
 
-/* 管理用テーブル表示 */
+/* ── 管理用テーブル ── */
 .manageTableWrapper {
   overflow-x: auto;
   border: 1px solid var(--glass-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   background: var(--bg-secondary);
   box-shadow: var(--shadow-sm);
 }
@@ -430,36 +671,122 @@
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
 }
 
-.manageTable th, .manageTable td {
-  padding: 14px 20px;
+.manageTable th,
+.manageTable td {
+  padding: 14px 22px;
   border-bottom: 1px solid var(--glass-border);
 }
 
 .manageTable th {
-  background: rgba(255, 255, 255, 0.02);
-  color: var(--text-secondary);
-  font-weight: 600;
+  background: linear-gradient(
+    135deg,
+    var(--accent-gold-light) 0%,
+    var(--bg-tertiary) 100%
+  );
+  color: var(--accent-gold);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+  text-transform: none;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
-.manageTable tr:hover {
-  background: rgba(255, 255, 255, 0.01);
+/* ゼブラストライプ */
+.manageTable tbody tr:nth-child(even) {
+  background: var(--bg-tertiary);
+}
+
+.manageTable tbody tr:nth-child(odd) {
+  background: var(--bg-secondary);
+}
+
+.manageTable tbody tr {
+  transition: all var(--transition-fast);
+}
+
+.manageTable tbody tr:hover {
+  background: var(--accent-gold-light);
+  box-shadow: inset 3px 0 0 var(--accent-gold);
 }
 
 .manageTable tr:last-child td {
   border-bottom: none;
 }
 
-/* レスポンシブ */
+/* ── レスポンシブ ── */
 @media (max-width: 1024px) {
   .adminContainer {
-    grid-template-columns: 1fr;
-    padding: 20px 10px;
+    padding: 16px 12px 32px;
   }
+
+  .header {
+    padding: 20px;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+  }
+
+  .menuTabRow {
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+  }
+
+  .tabBtn {
+    padding: 12px 16px;
+    font-size: 0.82rem;
+  }
+
+  .tablesGrid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+  }
+
   .orderFeed {
-    height: auto;
-    position: static;
+    min-height: auto;
+  }
+
+  .sectionHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .formGroup {
+    padding: 18px;
+  }
+}
+
+@media (max-width: 640px) {
+  .adminContainer {
+    padding: 12px 8px 24px;
+  }
+
+  .tablesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .tabBtn {
+    padding: 10px 12px;
+    font-size: 0.78rem;
+    gap: 4px;
+  }
+
+  .header {
+    padding: 16px;
+  }
+
+  .titleSection h1 {
+    font-size: 1.5rem;
+  }
+
+  .manageTable th,
+  .manageTable td {
+    padding: 10px 14px;
+    font-size: 0.82rem;
   }
 }

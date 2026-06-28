@@ -126,11 +126,10 @@ button {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent-gold) 0%, #1e40af 100%);
-  color: #fff; /* 青背景には白文字が映える */
+  background: var(--accent-gold);
+  color: #fff;
   font-weight: 700;
   box-shadow: var(--shadow-gold);
-  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 @media (hover: hover) {
@@ -220,9 +219,9 @@ button {
 }
 
 .badge-occupied {
-  background: rgba(212, 148, 58, 0.1);
+  background: var(--accent-gold-light);
   color: var(--accent-gold);
-  border: 1px solid rgba(212, 148, 58, 0.3);
+  border: 1px solid rgba(30, 58, 138, 0.25);
 }
 
 .badge-pending {
