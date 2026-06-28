@@ -4,7 +4,7 @@
   --bg-secondary: #1a1a1a;
   --bg-tertiary: #2a2a2a;
   --text-primary: #ffffff;
-  --text-secondary: #aaaaaa;
+  --text-secondary: #cccccc;
   --glass-border: rgba(255, 255, 255, 0.1);
   --accent-gold: #d4af37;
   --accent-gold-light: rgba(212, 175, 55, 0.15);
@@ -297,11 +297,12 @@
 
 .menuName {
   font-family: var(--font-serif);
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   letter-spacing: 0.02em;
+  line-height: 1.3;
 }
 
 .cardSmall .menuName {
@@ -309,14 +310,14 @@
 }
 
 .menuDesc {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
-  line-height: 1.4;
-  margin-bottom: 8px;
+  line-height: 1.5;
+  margin-bottom: 12px;
 }
 
 .menuPrice {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--accent-gold);
 }
@@ -802,4 +803,175 @@
 .submitting {
   opacity: 0.7;
   pointer-events: none;
+}
+
+/* Customization Modal */
+.customizeModalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.customizeModalSheet {
+  background: var(--bg-secondary);
+  border-radius: 24px 24px 0 0;
+  border-top: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  animation: slideUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+  overflow: hidden;
+}
+
+.customizeImage {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  background: var(--bg-tertiary);
+}
+
+.customizeHeaderInfo {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.customizeName {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--text-primary);
+}
+
+.customizeDesc {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.customizeBasePrice {
+  font-size: 1.1rem;
+  color: var(--accent-gold);
+  font-weight: 700;
+}
+
+.customizeOptions {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.optionSection {
+  margin-bottom: 24px;
+}
+
+.optionTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+  border-left: 3px solid var(--accent-gold);
+  padding-left: 8px;
+}
+
+.optionList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.optionLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.optionLabel:has(input:checked) {
+  border-color: var(--accent-gold);
+  background: var(--accent-gold-light);
+}
+
+.optionLabelLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.optionLabelText {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.optionPrice {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.optionLabel:has(input:checked) .optionPrice {
+  color: var(--accent-gold);
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--text-secondary);
+  border-radius: 50%;
+  margin: 0;
+  outline: none;
+  position: relative;
+  cursor: pointer;
+}
+
+input[type="checkbox"] {
+  border-radius: 4px;
+}
+
+input[type="radio"]:checked,
+input[type="checkbox"]:checked {
+  border-color: var(--accent-gold);
+}
+
+input[type="radio"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent-gold);
+}
+
+input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  background: var(--accent-gold);
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
+.cartRowOptions {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
 }

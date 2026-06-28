@@ -47,10 +47,12 @@ export const CATEGORIES = [
 ];
 
 interface CartItem {
+  cart_id: string;
   menu_id: string;
   name: string;
   price: number;
   quantity: number;
+  options?: string[];
 }
 
 interface OrderHistoryItem {
@@ -80,6 +82,23 @@ export default function MenuContent({ table_id, session_type }: MenuContentProps
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [orderHistory, setOrderHistory] = useState<Order[]>([]);
   const [activeTab, setActiveTab] = useState<TabType>('menu');
+
+  // カスタマイズモーダル用ステート
+  const [selectedItemForCustomization, setSelectedItemForCustomization] = useState<MenuItemData | null>(null);
+  const [ricePortion, setRicePortion] = useState<'small' | 'regular' | 'large'>('regular');
+  const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
+
+  const RICE_OPTIONS = {
+    small: { label: '小盛', price: -50 },
+    regular: { label: '普通', price: 0 },
+    large: { label: '大盛', price: 100 },
+  };
+
+  const ADDON_OPTIONS = [
+    { id: 'raw_egg', label: '生卵', price: 100 },
+    { id: 'natto', label: '納豆', price: 150 },
+  ];
+
 
   // 1. 注文履歴のロードとリアルタイム購読
   useEffect(() => {
@@ -141,29 +160,81 @@ export default function MenuContent({ table_id, session_type }: MenuContentProps
   };
 
   // カート操作
-  const updateCartQty = (menuId: string, delta: number) => {
-    const targetMenu = MENU_ITEMS.find((m) => m.menu_id === menuId);
-    if (!targetMenu) return;
-
+  const updateCartQty = (cart_id: string, delta: number, menuIdForNewItem?: string) => {
     setCart((prev) => {
-      const existing = prev.find((item) => item.menu_id === menuId);
+      const existing = prev.find((item) => item.cart_id === cart_id);
       if (existing) {
         const newQty = existing.quantity + delta;
         if (newQty <= 0) {
-          return prev.filter((item) => item.menu_id !== menuId);
+          return prev.filter((item) => item.cart_id !== cart_id);
         }
         return prev.map((item) =>
-          item.menu_id === menuId ? { ...item, quantity: newQty } : item
+          item.cart_id === cart_id ? { ...item, quantity: newQty } : item
         );
-      } else if (delta > 0) {
-        return [...prev, { menu_id: menuId, name: targetMenu.name, price: targetMenu.price, quantity: 1 }];
+      } else if (delta > 0 && menuIdForNewItem) {
+        const targetMenu = MENU_ITEMS.find((m) => m.menu_id === menuIdForNewItem);
+        if (targetMenu) {
+          return [...prev, { cart_id, menu_id: targetMenu.menu_id, name: targetMenu.name, price: targetMenu.price, quantity: 1 }];
+        }
       }
       return prev;
     });
   };
 
-  const getCartQuantity = (menuId: string) => {
-    return cart.find((item) => item.menu_id === menuId)?.quantity || 0;
+  const getCartQuantityForMenuId = (menuId: string) => {
+    return cart.filter((item) => item.menu_id === menuId).reduce((sum, item) => sum + item.quantity, 0);
+  };
+
+  const handleMenuAddClick = (item: MenuItemData) => {
+    if (item.category === 'teishoku' || item.category === 'dinner') {
+      setSelectedItemForCustomization(item);
+      setRicePortion('regular');
+      setSelectedAddons([]);
+    } else {
+      updateCartQty(item.menu_id, 1, item.menu_id);
+    }
+  };
+
+  const handleAddCustomizedItem = () => {
+    if (!selectedItemForCustomization) return;
+    
+    const optionsTextList = [];
+    if (ricePortion !== 'regular') optionsTextList.push(`ご飯${RICE_OPTIONS[ricePortion].label}`);
+    
+    const sortedAddons = [...selectedAddons].sort();
+    sortedAddons.forEach(addonId => {
+      const addon = ADDON_OPTIONS.find(a => a.id === addonId);
+      if (addon) optionsTextList.push(addon.label);
+    });
+
+    const cart_id = `${selectedItemForCustomization.menu_id}-${ricePortion}-${sortedAddons.join('-')}`;
+    
+    const basePrice = selectedItemForCustomization.price;
+    const customizedPrice = basePrice + RICE_OPTIONS[ricePortion].price + selectedAddons.reduce((sum, addonId) => {
+      const addon = ADDON_OPTIONS.find(a => a.id === addonId);
+      return sum + (addon ? addon.price : 0);
+    }, 0);
+
+    setCart((prev) => {
+      const existing = prev.find((item) => item.cart_id === cart_id);
+      if (existing) {
+        return prev.map((item) =>
+          item.cart_id === cart_id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      } else {
+        return [...prev, { 
+          cart_id, 
+          menu_id: selectedItemForCustomization.menu_id, 
+          name: selectedItemForCustomization.name, 
+          price: customizedPrice, 
+          quantity: 1, 
+          options: optionsTextList 
+        }];
+      }
+    });
+
+    setSelectedItemForCustomization(null);
+    showToast('カートに追加しました');
   };
 
   const cartTotalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -180,12 +251,15 @@ export default function MenuContent({ table_id, session_type }: MenuContentProps
     try {
       const orderPayload = {
         table_id,
-        items: cart.map((item) => ({
-          menu_id: item.menu_id,
-          name: item.name,
-          quantity: item.quantity,
-          price: item.price,
-        }))
+        items: cart.map((item) => {
+          const optionsText = item.options && item.options.length > 0 ? ` (${item.options.join(', ')})` : '';
+          return {
+            menu_id: item.menu_id,
+            name: `${item.name}${optionsText}`,
+            quantity: item.quantity,
+            price: item.price,
+          };
+        })
       };
 
       const res = await fetch('/api/orders', {
@@ -262,7 +336,8 @@ export default function MenuContent({ table_id, session_type }: MenuContentProps
                     <h3 className={styles.categoryTitle}>{category.label}</h3>
                     <div className={styles.gridContainer}>
                       {items.map((item) => {
-                        const qty = getCartQuantity(item.menu_id);
+                        const isCustomizable = item.category === 'teishoku' || item.category === 'dinner';
+                        const qty = isCustomizable ? 0 : getCartQuantityForMenuId(item.menu_id);
                         const cardClass = 
                           item.layoutSize === 'large' ? styles.cardLarge :
                           item.layoutSize === 'medium' ? styles.cardMedium :
@@ -302,14 +377,14 @@ export default function MenuContent({ table_id, session_type }: MenuContentProps
                                   <span className={styles.qtyLabel}>{qty}</span>
                                   <div 
                                     className={styles.qtyBtnMobile} 
-                                    onClick={() => updateCartQty(item.menu_id, 1)}
+                                    onClick={() => updateCartQty(item.menu_id, 1, item.menu_id)}
                                     role="button"
                                   >+</div>
                                 </div>
                               ) : (
                                 <button 
                                   className={`${styles.addBtnMobile} ${item.soldOut ? styles.soldOutBtn : ''}`}
-                                  onClick={() => !item.soldOut && updateCartQty(item.menu_id, 1)}
+                                  onClick={() => !item.soldOut && handleMenuAddClick(item)}
                                   disabled={item.soldOut}
                                 >
                                   {item.soldOut ? '売切' : '追加'}
@@ -432,16 +507,19 @@ export default function MenuContent({ table_id, session_type }: MenuContentProps
             
             <div className={styles.modalBody}>
               {cart.map((item) => (
-                <div key={item.menu_id} className={styles.cartRow}>
+                <div key={item.cart_id} className={styles.cartRow}>
                   <div className={styles.cartRowInfo}>
                     <div className={styles.cartRowName}>{item.name}</div>
+                    {item.options && item.options.length > 0 && (
+                      <div className={styles.cartRowOptions}>{item.options.join(', ')}</div>
+                    )}
                     <div className={styles.cartRowPrice}>¥{item.price.toLocaleString()}</div>
                   </div>
                   <div className={styles.cartRowAction}>
                     <div className={styles.qtyControl}>
-                      <div className={styles.qtyBtnMobile} onClick={() => updateCartQty(item.menu_id, -1)} role="button">-</div>
+                      <div className={styles.qtyBtnMobile} onClick={() => updateCartQty(item.cart_id, -1)} role="button">-</div>
                       <span className={styles.qtyLabel}>{item.quantity}</span>
-                      <div className={styles.qtyBtnMobile} onClick={() => updateCartQty(item.menu_id, 1)} role="button">+</div>
+                      <div className={styles.qtyBtnMobile} onClick={() => updateCartQty(item.cart_id, 1)} role="button">+</div>
                     </div>
                   </div>
                 </div>
@@ -459,6 +537,112 @@ export default function MenuContent({ table_id, session_type }: MenuContentProps
                 role="button"
               >
                 {isOrdering ? '送信中...' : '注文を確定する'}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* カスタマイズモーダル */}
+      {selectedItemForCustomization && (
+        <div className={styles.customizeModalOverlay}>
+          <div className={styles.customizeModalSheet}>
+            {selectedItemForCustomization.image && (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img 
+                src={selectedItemForCustomization.image} 
+                alt={selectedItemForCustomization.name} 
+                className={styles.customizeImage} 
+              />
+            )}
+            <div className={styles.customizeHeaderInfo}>
+              <div className={styles.customizeName}>{selectedItemForCustomization.name}</div>
+              {selectedItemForCustomization.desc && (
+                <div className={styles.customizeDesc}>{selectedItemForCustomization.desc}</div>
+              )}
+              <div className={styles.customizeBasePrice}>¥{selectedItemForCustomization.price.toLocaleString()}〜</div>
+            </div>
+
+            <div className={styles.customizeOptions}>
+              {/* ご飯の量 */}
+              <div className={styles.optionSection}>
+                <div className={styles.optionTitle}>ご飯の量</div>
+                <div className={styles.optionList}>
+                  {(['small', 'regular', 'large'] as const).map(optionKey => (
+                    <label key={optionKey} className={styles.optionLabel}>
+                      <div className={styles.optionLabelLeft}>
+                        <input 
+                          type="radio" 
+                          name="rice_portion" 
+                          value={optionKey} 
+                          checked={ricePortion === optionKey}
+                          onChange={() => setRicePortion(optionKey)}
+                        />
+                        <span className={styles.optionLabelText}>{RICE_OPTIONS[optionKey].label}</span>
+                      </div>
+                      <span className={styles.optionPrice}>
+                        {RICE_OPTIONS[optionKey].price > 0 ? `+¥${RICE_OPTIONS[optionKey].price}` : RICE_OPTIONS[optionKey].price < 0 ? `-¥${Math.abs(RICE_OPTIONS[optionKey].price)}` : '±¥0'}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* 追加メニュー */}
+              <div className={styles.optionSection}>
+                <div className={styles.optionTitle}>おすすめ追加メニュー</div>
+                <div className={styles.optionList}>
+                  {ADDON_OPTIONS.map(addon => (
+                    <label key={addon.id} className={styles.optionLabel}>
+                      <div className={styles.optionLabelLeft}>
+                        <input 
+                          type="checkbox" 
+                          checked={selectedAddons.includes(addon.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedAddons(prev => [...prev, addon.id]);
+                            } else {
+                              setSelectedAddons(prev => prev.filter(id => id !== addon.id));
+                            }
+                          }}
+                        />
+                        <span className={styles.optionLabelText}>{addon.label}</span>
+                      </div>
+                      <span className={styles.optionPrice}>+¥{addon.price}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.modalFooter}>
+              <div className={styles.modalTotalRow}>
+                <span className={styles.modalTotalLabel}>追加金額</span>
+                <span className={styles.modalTotalAmount}>
+                  ¥{(
+                    selectedItemForCustomization.price +
+                    RICE_OPTIONS[ricePortion].price +
+                    selectedAddons.reduce((sum, id) => sum + (ADDON_OPTIONS.find(a => a.id === id)?.price || 0), 0)
+                  ).toLocaleString()}
+                </span>
+              </div>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <div 
+                  className={styles.submitBtn} 
+                  style={{ background: 'var(--bg-tertiary)', color: 'var(--text-primary)', flex: 1 }}
+                  onClick={() => setSelectedItemForCustomization(null)}
+                  role="button"
+                >
+                  キャンセル
+                </div>
+                <div 
+                  className={styles.submitBtn} 
+                  style={{ flex: 2 }}
+                  onClick={handleAddCustomizedItem}
+                  role="button"
+                >
+                  カートに追加
+                </div>
               </div>
             </div>
           </div>
