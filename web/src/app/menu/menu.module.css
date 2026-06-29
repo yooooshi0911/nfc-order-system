@@ -924,8 +924,8 @@
   color: var(--accent-gold);
 }
 
-input[type="radio"],
-input[type="checkbox"] {
+.radioInput,
+.checkboxInput {
   appearance: none;
   width: 20px;
   height: 20px;
@@ -937,16 +937,16 @@ input[type="checkbox"] {
   cursor: pointer;
 }
 
-input[type="checkbox"] {
+.checkboxInput {
   border-radius: 4px;
 }
 
-input[type="radio"]:checked,
-input[type="checkbox"]:checked {
+.radioInput:checked,
+.checkboxInput:checked {
   border-color: var(--accent-gold);
 }
 
-input[type="radio"]:checked::after {
+.radioInput:checked::after {
   content: '';
   position: absolute;
   top: 50%;
@@ -958,7 +958,7 @@ input[type="radio"]:checked::after {
   background: var(--accent-gold);
 }
 
-input[type="checkbox"]:checked::after {
+.checkboxInput:checked::after {
   content: '';
   position: absolute;
   top: 50%;

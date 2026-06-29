@@ -198,7 +198,7 @@ export default function MenuContent({ table_id, session_type }: MenuContentProps
   const handleAddCustomizedItem = () => {
     if (!selectedItemForCustomization) return;
     
-    const optionsTextList = [];
+    const optionsTextList: string[] = [];
     if (ricePortion !== 'regular') optionsTextList.push(`ご飯${RICE_OPTIONS[ricePortion].label}`);
     
     const sortedAddons = [...selectedAddons].sort();
@@ -577,6 +577,7 @@ export default function MenuContent({ table_id, session_type }: MenuContentProps
                           value={optionKey} 
                           checked={ricePortion === optionKey}
                           onChange={() => setRicePortion(optionKey)}
+                          className={styles.radioInput}
                         />
                         <span className={styles.optionLabelText}>{RICE_OPTIONS[optionKey].label}</span>
                       </div>
@@ -605,6 +606,7 @@ export default function MenuContent({ table_id, session_type }: MenuContentProps
                               setSelectedAddons(prev => prev.filter(id => id !== addon.id));
                             }
                           }}
+                          className={styles.checkboxInput}
                         />
                         <span className={styles.optionLabelText}>{addon.label}</span>
                       </div>
